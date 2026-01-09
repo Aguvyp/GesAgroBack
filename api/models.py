@@ -209,7 +209,7 @@ class Costo(models.Model):
     fecha_pago_limite = models.DateField(null=True, blank=True)
     es_cobro = models.BooleanField(default=False)
     cobrar_a = models.CharField(max_length=255, null=True, blank=True)
-    id_trabajo = models.ForeignKey(Trabajo, on_delete=models.SET_NULL, null=True, blank=True, related_name='costos')
+    id_trabajo = models.ForeignKey(Trabajo, on_delete=models.SET_NULL, null=True, blank=True, related_name='costos', db_column='id_trabajo')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -261,7 +261,7 @@ class Credito(models.Model):
 
 
 class CuotaCredito(models.Model):
-    credito = models.ForeignKey(Credito, on_delete=models.CASCADE, related_name='cuotas')
+    credito = models.ForeignKey(Credito, on_delete=models.CASCADE, related_name='cuotas', db_column='id_credito')
     numero_cuota = models.IntegerField()
     fecha_vencimiento = models.DateField()
     monto_total = models.DecimalField(max_digits=12, decimal_places=2)
@@ -279,7 +279,7 @@ class Pago(models.Model):
     fecha = models.DateField()
     metodo_pago = models.CharField(max_length=50)
     descripcion = models.TextField(null=True, blank=True)
-    id_factura = models.ForeignKey(Factura, on_delete=models.SET_NULL, null=True, blank=True, related_name='pagos')
+    id_factura = models.ForeignKey(Factura, on_delete=models.SET_NULL, null=True, blank=True, related_name='pagos', db_column='id_factura')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -299,8 +299,8 @@ class Movimiento(models.Model):
     destinatario = models.CharField(max_length=255, null=True, blank=True)
     cobrar_a = models.CharField(max_length=255, null=True, blank=True)
     fecha_pago_limite = models.DateField(null=True, blank=True)
-    id_trabajo = models.ForeignKey(Trabajo, on_delete=models.SET_NULL, null=True, blank=True)
-    id_factura = models.ForeignKey(Factura, on_delete=models.SET_NULL, null=True, blank=True)
+    id_trabajo = models.ForeignKey(Trabajo, on_delete=models.SET_NULL, null=True, blank=True, db_column='id_trabajo')
+    id_factura = models.ForeignKey(Factura, on_delete=models.SET_NULL, null=True, blank=True, db_column='id_factura')
     fecha_pago = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -310,7 +310,7 @@ class Movimiento(models.Model):
 
 
 class Mantenimiento(models.Model):
-    maquina = models.ForeignKey(Maquina, on_delete=models.CASCADE, related_name='mantenimientos')
+    maquina = models.ForeignKey(Maquina, on_delete=models.CASCADE, related_name='mantenimientos', db_column='id_maquina')
     fecha = models.DateField()
     descripcion = models.TextField()
     estado = models.CharField(max_length=50, default='Pendiente')

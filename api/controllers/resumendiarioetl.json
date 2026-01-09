@@ -1,0 +1,2184 @@
+{
+	"table": "COLUMNS",
+	"rows":
+	[
+		{
+			"TABLE_NAME": "auth_group",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "auth_group",
+			"COLUMN_NAME": "name",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(150)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "UNI",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "auth_group_permissions",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "bigint",
+			"COLUMN_TYPE": "bigint",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "auth_group_permissions",
+			"COLUMN_NAME": "group_id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "auth_group_permissions",
+			"COLUMN_NAME": "permission_id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "auth_permission",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "auth_permission",
+			"COLUMN_NAME": "name",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "auth_permission",
+			"COLUMN_NAME": "content_type_id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "auth_permission",
+			"COLUMN_NAME": "codename",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(100)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "campos",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "campos",
+			"COLUMN_NAME": "nombre",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "campos",
+			"COLUMN_NAME": "hectareas",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(10,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "campos",
+			"COLUMN_NAME": "latitud",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(10,8)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "campos",
+			"COLUMN_NAME": "longitud",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(11,8)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "campos",
+			"COLUMN_NAME": "detalles",
+			"DATA_TYPE": "text",
+			"COLUMN_TYPE": "text",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "campos",
+			"COLUMN_NAME": "created_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "campos",
+			"COLUMN_NAME": "updated_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+		},
+		{
+			"TABLE_NAME": "campos_cliente",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "campos_cliente",
+			"COLUMN_NAME": "cliente_id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "campos_cliente",
+			"COLUMN_NAME": "campo_id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "campos_cliente",
+			"COLUMN_NAME": "fecha_asignacion",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "campos_cliente",
+			"COLUMN_NAME": "observaciones",
+			"DATA_TYPE": "text",
+			"COLUMN_TYPE": "text",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "campos_cliente",
+			"COLUMN_NAME": "activo",
+			"DATA_TYPE": "tinyint",
+			"COLUMN_TYPE": "tinyint(1)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "campos_cliente",
+			"COLUMN_NAME": "created_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "campos_cliente",
+			"COLUMN_NAME": "updated_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+		},
+		{
+			"TABLE_NAME": "clientes",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "clientes",
+			"COLUMN_NAME": "nombre",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "clientes",
+			"COLUMN_NAME": "email",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "clientes",
+			"COLUMN_NAME": "telefono",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(50)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "clientes",
+			"COLUMN_NAME": "direccion",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(500)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "clientes",
+			"COLUMN_NAME": "cuit",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(20)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "clientes",
+			"COLUMN_NAME": "observaciones",
+			"DATA_TYPE": "text",
+			"COLUMN_TYPE": "text",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "clientes",
+			"COLUMN_NAME": "fecha_creacion",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "clientes",
+			"COLUMN_NAME": "fecha_modificacion",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+		},
+		{
+			"TABLE_NAME": "clientes",
+			"COLUMN_NAME": "created_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "clientes",
+			"COLUMN_NAME": "updated_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+		},
+		{
+			"TABLE_NAME": "costos",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "costos",
+			"COLUMN_NAME": "monto",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(12,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "costos",
+			"COLUMN_NAME": "fecha",
+			"DATA_TYPE": "date",
+			"COLUMN_TYPE": "date",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "costos",
+			"COLUMN_NAME": "destinatario",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "costos",
+			"COLUMN_NAME": "pagado",
+			"DATA_TYPE": "tinyint",
+			"COLUMN_TYPE": "tinyint(1)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "costos",
+			"COLUMN_NAME": "forma_pago",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(50)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "costos",
+			"COLUMN_NAME": "descripcion",
+			"DATA_TYPE": "text",
+			"COLUMN_TYPE": "text",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "costos",
+			"COLUMN_NAME": "categoria",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(100)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "costos",
+			"COLUMN_NAME": "fecha_pago_limite",
+			"DATA_TYPE": "date",
+			"COLUMN_TYPE": "date",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "costos",
+			"COLUMN_NAME": "es_cobro",
+			"DATA_TYPE": "tinyint",
+			"COLUMN_TYPE": "tinyint(1)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "costos",
+			"COLUMN_NAME": "cobrar_a",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "costos",
+			"COLUMN_NAME": "id_trabajo",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "costos",
+			"COLUMN_NAME": "created_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "costos",
+			"COLUMN_NAME": "updated_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+		},
+		{
+			"TABLE_NAME": "creditos",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "creditos",
+			"COLUMN_NAME": "entidad",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "creditos",
+			"COLUMN_NAME": "monto_otorgado",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(12,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "creditos",
+			"COLUMN_NAME": "tasa_interes_anual",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(5,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "creditos",
+			"COLUMN_NAME": "plazo_meses",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "creditos",
+			"COLUMN_NAME": "fecha_desembolso",
+			"DATA_TYPE": "date",
+			"COLUMN_TYPE": "date",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "creditos",
+			"COLUMN_NAME": "estado",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(50)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "creditos",
+			"COLUMN_NAME": "created_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "creditos",
+			"COLUMN_NAME": "updated_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+		},
+		{
+			"TABLE_NAME": "cuotas_credito",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "cuotas_credito",
+			"COLUMN_NAME": "id_credito",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "cuotas_credito",
+			"COLUMN_NAME": "numero_cuota",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "cuotas_credito",
+			"COLUMN_NAME": "fecha_vencimiento",
+			"DATA_TYPE": "date",
+			"COLUMN_TYPE": "date",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "cuotas_credito",
+			"COLUMN_NAME": "monto_total",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(12,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "cuotas_credito",
+			"COLUMN_NAME": "estado",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(50)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "cuotas_credito",
+			"COLUMN_NAME": "created_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "cuotas_credito",
+			"COLUMN_NAME": "updated_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+		},
+		{
+			"TABLE_NAME": "django_admin_log",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "django_admin_log",
+			"COLUMN_NAME": "action_time",
+			"DATA_TYPE": "datetime",
+			"COLUMN_TYPE": "datetime(6)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "django_admin_log",
+			"COLUMN_NAME": "object_id",
+			"DATA_TYPE": "longtext",
+			"COLUMN_TYPE": "longtext",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "django_admin_log",
+			"COLUMN_NAME": "object_repr",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(200)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "django_admin_log",
+			"COLUMN_NAME": "action_flag",
+			"DATA_TYPE": "smallint",
+			"COLUMN_TYPE": "smallint unsigned",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "django_admin_log",
+			"COLUMN_NAME": "change_message",
+			"DATA_TYPE": "longtext",
+			"COLUMN_TYPE": "longtext",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "django_admin_log",
+			"COLUMN_NAME": "content_type_id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "django_admin_log",
+			"COLUMN_NAME": "user_id",
+			"DATA_TYPE": "bigint",
+			"COLUMN_TYPE": "bigint",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "django_content_type",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "django_content_type",
+			"COLUMN_NAME": "app_label",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(100)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "django_content_type",
+			"COLUMN_NAME": "model",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(100)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "django_migrations",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "bigint",
+			"COLUMN_TYPE": "bigint",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "django_migrations",
+			"COLUMN_NAME": "app",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "django_migrations",
+			"COLUMN_NAME": "name",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "django_migrations",
+			"COLUMN_NAME": "applied",
+			"DATA_TYPE": "datetime",
+			"COLUMN_TYPE": "datetime(6)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "factura_items",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "factura_items",
+			"COLUMN_NAME": "factura_id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "factura_items",
+			"COLUMN_NAME": "descripcion",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(500)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "factura_items",
+			"COLUMN_NAME": "cantidad",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "factura_items",
+			"COLUMN_NAME": "precio_unitario",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(12,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "factura_items",
+			"COLUMN_NAME": "subtotal",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(12,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "factura_items",
+			"COLUMN_NAME": "created_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "factura_items",
+			"COLUMN_NAME": "updated_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+		},
+		{
+			"TABLE_NAME": "facturas",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "facturas",
+			"COLUMN_NAME": "cliente_id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "facturas",
+			"COLUMN_NAME": "numero",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(100)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "UNI",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "facturas",
+			"COLUMN_NAME": "fecha_emision",
+			"DATA_TYPE": "date",
+			"COLUMN_TYPE": "date",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "facturas",
+			"COLUMN_NAME": "fecha_vencimiento",
+			"DATA_TYPE": "date",
+			"COLUMN_TYPE": "date",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "facturas",
+			"COLUMN_NAME": "monto_total",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(12,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "facturas",
+			"COLUMN_NAME": "monto_pagado",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(12,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "facturas",
+			"COLUMN_NAME": "estado",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(50)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "facturas",
+			"COLUMN_NAME": "observaciones",
+			"DATA_TYPE": "text",
+			"COLUMN_TYPE": "text",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "facturas",
+			"COLUMN_NAME": "created_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "facturas",
+			"COLUMN_NAME": "updated_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+		},
+		{
+			"TABLE_NAME": "insumos",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "insumos",
+			"COLUMN_NAME": "nombre",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "insumos",
+			"COLUMN_NAME": "categoria",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(100)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "insumos",
+			"COLUMN_NAME": "unidad",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(50)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "insumos",
+			"COLUMN_NAME": "stock_actual",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(10,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "insumos",
+			"COLUMN_NAME": "stock_minimo",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(10,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "insumos",
+			"COLUMN_NAME": "precio_unitario",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(10,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "insumos",
+			"COLUMN_NAME": "proveedor",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "insumos",
+			"COLUMN_NAME": "fecha_vencimiento",
+			"DATA_TYPE": "date",
+			"COLUMN_TYPE": "date",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "insumos",
+			"COLUMN_NAME": "observaciones",
+			"DATA_TYPE": "text",
+			"COLUMN_TYPE": "text",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "insumos",
+			"COLUMN_NAME": "activo",
+			"DATA_TYPE": "tinyint",
+			"COLUMN_TYPE": "tinyint(1)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "insumos",
+			"COLUMN_NAME": "created_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "insumos",
+			"COLUMN_NAME": "updated_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+		},
+		{
+			"TABLE_NAME": "mantenimientos",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "mantenimientos",
+			"COLUMN_NAME": "id_maquina",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "mantenimientos",
+			"COLUMN_NAME": "fecha",
+			"DATA_TYPE": "date",
+			"COLUMN_TYPE": "date",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "mantenimientos",
+			"COLUMN_NAME": "descripcion",
+			"DATA_TYPE": "text",
+			"COLUMN_TYPE": "text",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "mantenimientos",
+			"COLUMN_NAME": "estado",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(50)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "mantenimientos",
+			"COLUMN_NAME": "costo_total",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(12,2)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "mantenimientos",
+			"COLUMN_NAME": "created_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "mantenimientos",
+			"COLUMN_NAME": "updated_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+		},
+		{
+			"TABLE_NAME": "maquinas",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "maquinas",
+			"COLUMN_NAME": "nombre",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "maquinas",
+			"COLUMN_NAME": "marca",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(100)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "maquinas",
+			"COLUMN_NAME": "modelo",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(100)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "maquinas",
+			"COLUMN_NAME": "ano",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "maquinas",
+			"COLUMN_NAME": "detalles",
+			"DATA_TYPE": "text",
+			"COLUMN_TYPE": "text",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "maquinas",
+			"COLUMN_NAME": "ancho_trabajo",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(5,2)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "maquinas",
+			"COLUMN_NAME": "estado",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(50)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "maquinas",
+			"COLUMN_NAME": "superficie_total_ha",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(10,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "maquinas",
+			"COLUMN_NAME": "horas_trabajadas",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(10,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "maquinas",
+			"COLUMN_NAME": "ultimo_trabajo",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "maquinas",
+			"COLUMN_NAME": "created_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "maquinas",
+			"COLUMN_NAME": "updated_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+		},
+		{
+			"TABLE_NAME": "movimientos",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "movimientos",
+			"COLUMN_NAME": "monto",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(12,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "movimientos",
+			"COLUMN_NAME": "fecha",
+			"DATA_TYPE": "date",
+			"COLUMN_TYPE": "date",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "movimientos",
+			"COLUMN_NAME": "descripcion",
+			"DATA_TYPE": "text",
+			"COLUMN_TYPE": "text",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "movimientos",
+			"COLUMN_NAME": "categoria",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(100)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "movimientos",
+			"COLUMN_NAME": "pagado",
+			"DATA_TYPE": "tinyint",
+			"COLUMN_TYPE": "tinyint(1)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "movimientos",
+			"COLUMN_NAME": "forma_pago",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(50)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "movimientos",
+			"COLUMN_NAME": "metodo_pago",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(50)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "movimientos",
+			"COLUMN_NAME": "es_cobro",
+			"DATA_TYPE": "tinyint",
+			"COLUMN_TYPE": "tinyint(1)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "movimientos",
+			"COLUMN_NAME": "destinatario",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "movimientos",
+			"COLUMN_NAME": "cobrar_a",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "movimientos",
+			"COLUMN_NAME": "fecha_pago_limite",
+			"DATA_TYPE": "date",
+			"COLUMN_TYPE": "date",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "movimientos",
+			"COLUMN_NAME": "id_trabajo",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "movimientos",
+			"COLUMN_NAME": "id_factura",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "movimientos",
+			"COLUMN_NAME": "fecha_pago",
+			"DATA_TYPE": "date",
+			"COLUMN_TYPE": "date",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "movimientos",
+			"COLUMN_NAME": "created_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "movimientos",
+			"COLUMN_NAME": "updated_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+		},
+		{
+			"TABLE_NAME": "pagos",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "pagos",
+			"COLUMN_NAME": "monto",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(12,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "pagos",
+			"COLUMN_NAME": "fecha",
+			"DATA_TYPE": "date",
+			"COLUMN_TYPE": "date",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "pagos",
+			"COLUMN_NAME": "metodo_pago",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(50)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "pagos",
+			"COLUMN_NAME": "descripcion",
+			"DATA_TYPE": "text",
+			"COLUMN_TYPE": "text",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "pagos",
+			"COLUMN_NAME": "id_factura",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "pagos",
+			"COLUMN_NAME": "created_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "pagos",
+			"COLUMN_NAME": "updated_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+		},
+		{
+			"TABLE_NAME": "personal",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "personal",
+			"COLUMN_NAME": "nombre",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "personal",
+			"COLUMN_NAME": "dni",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(20)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "UNI",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "personal",
+			"COLUMN_NAME": "telefono",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(50)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "personal",
+			"COLUMN_NAME": "superficie_total_ha",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(10,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "personal",
+			"COLUMN_NAME": "horas_trabajadas",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(10,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "personal",
+			"COLUMN_NAME": "trabajos_completados",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "personal",
+			"COLUMN_NAME": "ultimo_trabajo",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "personal",
+			"COLUMN_NAME": "created_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "personal",
+			"COLUMN_NAME": "updated_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+		},
+		{
+			"TABLE_NAME": "tipo_trabajo",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "tipo_trabajo",
+			"COLUMN_NAME": "trabajo",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(100)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "UNI",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "tipo_trabajo",
+			"COLUMN_NAME": "created_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "tipo_trabajo",
+			"COLUMN_NAME": "updated_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+		},
+		{
+			"TABLE_NAME": "trabajo_maquinas",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "trabajo_maquinas",
+			"COLUMN_NAME": "trabajo_id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajo_maquinas",
+			"COLUMN_NAME": "maquina_id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajo_maquinas",
+			"COLUMN_NAME": "created_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "trabajo_personal",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "trabajo_personal",
+			"COLUMN_NAME": "trabajo_id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajo_personal",
+			"COLUMN_NAME": "personal_id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajo_personal",
+			"COLUMN_NAME": "hectareas",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(10,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajo_personal",
+			"COLUMN_NAME": "created_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "trabajo_personal",
+			"COLUMN_NAME": "updated_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+		},
+		{
+			"TABLE_NAME": "trabajo_personal",
+			"COLUMN_NAME": "horas_trabajadas",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(20,6)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajos",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "trabajos",
+			"COLUMN_NAME": "id_tipo_trabajo",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajos",
+			"COLUMN_NAME": "cultivo",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajos",
+			"COLUMN_NAME": "fecha_inicio",
+			"DATA_TYPE": "date",
+			"COLUMN_TYPE": "date",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajos",
+			"COLUMN_NAME": "fecha_fin",
+			"DATA_TYPE": "date",
+			"COLUMN_TYPE": "date",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajos",
+			"COLUMN_NAME": "campo_id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajos",
+			"COLUMN_NAME": "estado",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(50)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajos",
+			"COLUMN_NAME": "observaciones",
+			"DATA_TYPE": "text",
+			"COLUMN_TYPE": "text",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajos",
+			"COLUMN_NAME": "a_terceros",
+			"DATA_TYPE": "tinyint",
+			"COLUMN_TYPE": "tinyint(1)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajos",
+			"COLUMN_NAME": "cobrado",
+			"DATA_TYPE": "tinyint",
+			"COLUMN_TYPE": "tinyint(1)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajos",
+			"COLUMN_NAME": "monto_cobrado",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(12,2)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajos",
+			"COLUMN_NAME": "cliente",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajos",
+			"COLUMN_NAME": "servicio_contratado",
+			"DATA_TYPE": "tinyint",
+			"COLUMN_TYPE": "tinyint(1)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajos",
+			"COLUMN_NAME": "rinde_cosecha",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(10,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajos",
+			"COLUMN_NAME": "humedad_cosecha",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(5,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "trabajos",
+			"COLUMN_NAME": "created_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "trabajos",
+			"COLUMN_NAME": "updated_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+		},
+		{
+			"TABLE_NAME": "trabajos",
+			"COLUMN_NAME": "horas_trabajadas",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(20,6)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "usuarios",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "PRI",
+			"EXTRA": "auto_increment"
+		},
+		{
+			"TABLE_NAME": "usuarios",
+			"COLUMN_NAME": "nombre",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "usuarios",
+			"COLUMN_NAME": "email",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "UNI",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "usuarios",
+			"COLUMN_NAME": "password",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "usuarios",
+			"COLUMN_NAME": "rol",
+			"DATA_TYPE": "enum",
+			"COLUMN_TYPE": "enum('Administrador','Contable','Operario')",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "usuarios",
+			"COLUMN_NAME": "activo",
+			"DATA_TYPE": "tinyint",
+			"COLUMN_TYPE": "tinyint(1)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "MUL",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "usuarios",
+			"COLUMN_NAME": "fecha_creacion",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "usuarios",
+			"COLUMN_NAME": "ultimo_acceso",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "usuarios",
+			"COLUMN_NAME": "created_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED"
+		},
+		{
+			"TABLE_NAME": "usuarios",
+			"COLUMN_NAME": "updated_at",
+			"DATA_TYPE": "timestamp",
+			"COLUMN_TYPE": "timestamp",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+		},
+		{
+			"TABLE_NAME": "v_dashboard_resumen",
+			"COLUMN_NAME": "trabajos_pendientes",
+			"DATA_TYPE": "bigint",
+			"COLUMN_TYPE": "bigint",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_dashboard_resumen",
+			"COLUMN_NAME": "trabajos_en_curso",
+			"DATA_TYPE": "bigint",
+			"COLUMN_TYPE": "bigint",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_dashboard_resumen",
+			"COLUMN_NAME": "trabajos_completados",
+			"DATA_TYPE": "bigint",
+			"COLUMN_TYPE": "bigint",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_dashboard_resumen",
+			"COLUMN_NAME": "ingresos_mes",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(34,2)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_dashboard_resumen",
+			"COLUMN_NAME": "gastos_mes",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(34,2)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_dashboard_resumen",
+			"COLUMN_NAME": "facturas_pendientes",
+			"DATA_TYPE": "bigint",
+			"COLUMN_TYPE": "bigint",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_dashboard_resumen",
+			"COLUMN_NAME": "facturas_vencidas",
+			"DATA_TYPE": "bigint",
+			"COLUMN_TYPE": "bigint",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_dashboard_resumen",
+			"COLUMN_NAME": "mantenimientos_pendientes",
+			"DATA_TYPE": "bigint",
+			"COLUMN_TYPE": "bigint",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_dashboard_resumen",
+			"COLUMN_NAME": "insumos_bajo_stock",
+			"DATA_TYPE": "bigint",
+			"COLUMN_TYPE": "bigint",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "id_tipo_trabajo",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "tipo",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(100)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "cultivo",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "fecha_inicio",
+			"DATA_TYPE": "date",
+			"COLUMN_TYPE": "date",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "fecha_fin",
+			"DATA_TYPE": "date",
+			"COLUMN_TYPE": "date",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "campo_id",
+			"DATA_TYPE": "int",
+			"COLUMN_TYPE": "int",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "campo_nombre",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "campo_ha",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(10,2)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "estado",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(50)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "observaciones",
+			"DATA_TYPE": "text",
+			"COLUMN_TYPE": "text",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "a_terceros",
+			"DATA_TYPE": "tinyint",
+			"COLUMN_TYPE": "tinyint(1)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "cobrado",
+			"DATA_TYPE": "tinyint",
+			"COLUMN_TYPE": "tinyint(1)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "monto_cobrado",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(12,2)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "cliente",
+			"DATA_TYPE": "varchar",
+			"COLUMN_TYPE": "varchar(255)",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "servicio_contratado",
+			"DATA_TYPE": "tinyint",
+			"COLUMN_TYPE": "tinyint(1)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "rinde_cosecha",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(10,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "humedad_cosecha",
+			"DATA_TYPE": "decimal",
+			"COLUMN_TYPE": "decimal(5,2)",
+			"IS_NULLABLE": "NO",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "id_personal",
+			"DATA_TYPE": "text",
+			"COLUMN_TYPE": "text",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		},
+		{
+			"TABLE_NAME": "v_trabajos_completos",
+			"COLUMN_NAME": "id_maquinas",
+			"DATA_TYPE": "text",
+			"COLUMN_TYPE": "text",
+			"IS_NULLABLE": "YES",
+			"COLUMN_KEY": "",
+			"EXTRA": ""
+		}
+	]
+}
