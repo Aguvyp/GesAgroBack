@@ -1,0 +1,26 @@
+# Django y REST Framework
+Django>=5.2.0
+djangorestframework>=3.14.0
+django-cors-headers>=4.0.0
+drf-spectacular>=0.26.0
+djangorestframework-simplejwt>=5.2.0
+
+# Base de datos
+mysqlclient>=2.1.0
+
+# WhatsApp y Twilio
+twilio>=8.10.0
+
+# Procesamiento de lenguaje natural (sistema local)
+sentence-transformers>=2.2.0
+dateparser>=1.2.0
+
+# Transcripción de audio
+openai-whisper>=20231117
+ffmpeg-python>=0.2.0
+
+# Utilidades
+python-dotenv>=1.0.0
+
+# OpenAI
+openai>=1.0.0

@@ -23,16 +23,17 @@ class Usuario(AbstractBaseUser):
         ('Contable', 'Contable'),
         ('Operario', 'Operario'),
     )
-    nombre = models.CharField(max_length=255)
-    email = models.EmailField(unique=True)
+    nombre = models.CharField(max_length=255, null=True, blank=True)
+    email = models.EmailField(unique=True, null=True, blank=True)
     # password viene de AbstractBaseUser
-    rol = models.CharField(max_length=50, choices=ROLES, default='Operario')
+    rol = models.CharField(max_length=50, choices=ROLES, default='Operario', null=True, blank=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    telefono = models.CharField(max_length=50, null=True, blank=True)
     
     # Mapear is_active a activo (que existe en la BD)
-    is_active = models.BooleanField(default=True, db_column='activo')
+    is_active = models.BooleanField(default=True, db_column='activo', null=True, blank=True)
     
     # Sobrescribir last_login de AbstractBaseUser y mapearlo a ultimo_acceso que existe en la BD
     last_login = models.DateTimeField(null=True, blank=True, db_column='ultimo_acceso')
@@ -49,7 +50,7 @@ class Usuario(AbstractBaseUser):
         return self.email
 
 class TipoTrabajo(models.Model):
-    trabajo = models.CharField(max_length=100, unique=True)
+    trabajo = models.CharField(max_length=100, unique=True, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -61,8 +62,8 @@ class TipoTrabajo(models.Model):
         return self.trabajo
 
 class Campo(models.Model):
-    nombre = models.CharField(max_length=255)
-    hectareas = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    nombre = models.CharField(max_length=255, null=True, blank=True)
+    hectareas = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
     latitud = models.DecimalField(max_digits=10, decimal_places=8, null=True, blank=True)
     longitud = models.DecimalField(max_digits=11, decimal_places=8, null=True, blank=True)
     detalles = models.TextField(null=True, blank=True)
@@ -76,7 +77,7 @@ class Campo(models.Model):
         return self.nombre
 
 class Cliente(models.Model):
-    nombre = models.CharField(max_length=255)
+    nombre = models.CharField(max_length=255, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     telefono = models.CharField(max_length=50, null=True, blank=True)
     direccion = models.CharField(max_length=500, null=True, blank=True)
@@ -95,11 +96,11 @@ class Cliente(models.Model):
         return self.nombre
 
 class CampoCliente(models.Model):
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='campos_asignados')
-    campo = models.ForeignKey(Campo, on_delete=models.CASCADE, related_name='clientes_asignados')
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='campos_asignados', null=True, blank=True)
+    campo = models.ForeignKey(Campo, on_delete=models.CASCADE, related_name='clientes_asignados', null=True, blank=True)
     fecha_asignacion = models.DateTimeField(auto_now_add=True)
     observaciones = models.TextField(null=True, blank=True)
-    activo = models.BooleanField(default=True)
+    activo = models.BooleanField(default=True, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -109,15 +110,15 @@ class CampoCliente(models.Model):
 
 
 class Maquina(models.Model):
-    nombre = models.CharField(max_length=255)
-    marca = models.CharField(max_length=100)
-    modelo = models.CharField(max_length=100)
-    ano = models.IntegerField()
+    nombre = models.CharField(max_length=255, null=True, blank=True)
+    marca = models.CharField(max_length=100, null=True, blank=True)
+    modelo = models.CharField(max_length=100, null=True, blank=True)
+    ano = models.IntegerField(null=True, blank=True)
     detalles = models.TextField(null=True, blank=True)
     ancho_trabajo = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     estado = models.CharField(max_length=50, default='Disponible', null=True, blank=True)
-    superficie_total_ha = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    horas_trabajadas = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    superficie_total_ha = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+    horas_trabajadas = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
     ultimo_trabajo = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -130,12 +131,12 @@ class Maquina(models.Model):
         return self.nombre
 
 class Personal(models.Model):
-    nombre = models.CharField(max_length=255)
-    dni = models.CharField(max_length=20, unique=True)
+    nombre = models.CharField(max_length=255, null=True, blank=True)
+    dni = models.CharField(max_length=20, unique=True, null=True, blank=True)
     telefono = models.CharField(max_length=50, null=True, blank=True)
-    superficie_total_ha = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    horas_trabajadas = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    trabajos_completados = models.IntegerField(default=0)
+    superficie_total_ha = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+    horas_trabajadas = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+    trabajos_completados = models.IntegerField(default=0, null=True, blank=True)
     ultimo_trabajo = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -150,23 +151,23 @@ class Personal(models.Model):
         return self.nombre
 
 class Trabajo(models.Model):
-    id_tipo_trabajo = models.ForeignKey(TipoTrabajo, on_delete=models.PROTECT, related_name='trabajos', db_column='id_tipo_trabajo')
-    cultivo = models.CharField(max_length=255)
-    fecha_inicio = models.DateField()
+    id_tipo_trabajo = models.ForeignKey(TipoTrabajo, on_delete=models.PROTECT, related_name='trabajos', db_column='id_tipo_trabajo', null=True, blank=True)
+    cultivo = models.CharField(max_length=255, null=True, blank=True)
+    fecha_inicio = models.DateField(null=True, blank=True)
     fecha_fin = models.DateField(null=True, blank=True)
-    campo = models.ForeignKey(Campo, on_delete=models.CASCADE, related_name='trabajos')
+    campo = models.ForeignKey(Campo, on_delete=models.CASCADE, related_name='trabajos', null=True, blank=True)
     estado = models.CharField(max_length=50, default='Pendiente', null=True, blank=True)
     observaciones = models.TextField(null=True, blank=True)
-    a_terceros = models.BooleanField(default=False)
-    cobrado = models.BooleanField(default=False)
+    a_terceros = models.BooleanField(default=False, null=True, blank=True)
+    cobrado = models.BooleanField(default=False, null=True, blank=True)
     monto_cobrado = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     cliente = models.CharField(max_length=255, null=True, blank=True)
-    servicio_contratado = models.BooleanField(default=False)
-    rinde_cosecha = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    humedad_cosecha = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    servicio_contratado = models.BooleanField(default=False, null=True, blank=True)
+    rinde_cosecha = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+    humedad_cosecha = models.DecimalField(max_digits=5, decimal_places=2, default=0.00, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    horas_trabajadas = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    horas_trabajadas = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
     
     personal = models.ManyToManyField(Personal, through='TrabajoPersonal', related_name='trabajos')
     maquinas = models.ManyToManyField(Maquina, through='TrabajoMaquina', related_name='trabajos')
@@ -176,10 +177,10 @@ class Trabajo(models.Model):
 
 
 class TrabajoPersonal(models.Model):
-    trabajo = models.ForeignKey(Trabajo, on_delete=models.CASCADE)
-    personal = models.ForeignKey(Personal, on_delete=models.CASCADE)
-    hectareas = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    horas_trabajadas = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    trabajo = models.ForeignKey(Trabajo, on_delete=models.CASCADE, null=True, blank=True)
+    personal = models.ForeignKey(Personal, on_delete=models.CASCADE, null=True, blank=True)
+    hectareas = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+    horas_trabajadas = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -189,8 +190,8 @@ class TrabajoPersonal(models.Model):
 
 
 class TrabajoMaquina(models.Model):
-    trabajo = models.ForeignKey(Trabajo, on_delete=models.CASCADE)
-    maquina = models.ForeignKey(Maquina, on_delete=models.CASCADE)
+    trabajo = models.ForeignKey(Trabajo, on_delete=models.CASCADE, null=True, blank=True)
+    maquina = models.ForeignKey(Maquina, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -199,15 +200,15 @@ class TrabajoMaquina(models.Model):
 
 
 class Costo(models.Model):
-    monto = models.DecimalField(max_digits=12, decimal_places=2)
-    fecha = models.DateField()
-    destinatario = models.CharField(max_length=255)
-    pagado = models.BooleanField(default=False)
+    monto = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    fecha = models.DateField(null=True, blank=True)
+    destinatario = models.CharField(max_length=255, null=True, blank=True)
+    pagado = models.BooleanField(default=False, null=True, blank=True)
     forma_pago = models.CharField(max_length=50, null=True, blank=True)
     descripcion = models.TextField(null=True, blank=True)
     categoria = models.CharField(max_length=100, null=True, blank=True)
     fecha_pago_limite = models.DateField(null=True, blank=True)
-    es_cobro = models.BooleanField(default=False)
+    es_cobro = models.BooleanField(default=False, null=True, blank=True)
     cobrar_a = models.CharField(max_length=255, null=True, blank=True)
     id_trabajo = models.ForeignKey(Trabajo, on_delete=models.SET_NULL, null=True, blank=True, related_name='costos', db_column='id_trabajo')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -218,13 +219,13 @@ class Costo(models.Model):
 
 
 class Factura(models.Model):
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='facturas')
-    numero = models.CharField(max_length=100, unique=True)
-    fecha_emision = models.DateField()
-    fecha_vencimiento = models.DateField()
-    monto_total = models.DecimalField(max_digits=12, decimal_places=2)
-    monto_pagado = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    estado = models.CharField(max_length=50, default='Pendiente')
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='facturas', null=True, blank=True)
+    numero = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    fecha_emision = models.DateField(null=True, blank=True)
+    fecha_vencimiento = models.DateField(null=True, blank=True)
+    monto_total = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    monto_pagado = models.DecimalField(max_digits=12, decimal_places=2, default=0.00, null=True, blank=True)
+    estado = models.CharField(max_length=50, default='Pendiente', null=True, blank=True)
     observaciones = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -234,11 +235,11 @@ class Factura(models.Model):
 
 
 class FacturaItem(models.Model):
-    factura = models.ForeignKey(Factura, on_delete=models.CASCADE, related_name='items')
-    descripcion = models.CharField(max_length=500)
-    cantidad = models.IntegerField(default=1)
-    precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
-    subtotal = models.DecimalField(max_digits=12, decimal_places=2)
+    factura = models.ForeignKey(Factura, on_delete=models.CASCADE, related_name='items', null=True, blank=True)
+    descripcion = models.CharField(max_length=500, null=True, blank=True)
+    cantidad = models.IntegerField(default=1, null=True, blank=True)
+    precio_unitario = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    subtotal = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -247,12 +248,12 @@ class FacturaItem(models.Model):
 
 
 class Credito(models.Model):
-    entidad = models.CharField(max_length=255)
-    monto_otorgado = models.DecimalField(max_digits=12, decimal_places=2)
-    tasa_interes_anual = models.DecimalField(max_digits=5, decimal_places=2)
-    plazo_meses = models.IntegerField()
-    fecha_desembolso = models.DateField()
-    estado = models.CharField(max_length=50, default='Activo')
+    entidad = models.CharField(max_length=255, null=True, blank=True)
+    monto_otorgado = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    tasa_interes_anual = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    plazo_meses = models.IntegerField(null=True, blank=True)
+    fecha_desembolso = models.DateField(null=True, blank=True)
+    estado = models.CharField(max_length=50, default='Activo', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -261,11 +262,11 @@ class Credito(models.Model):
 
 
 class CuotaCredito(models.Model):
-    credito = models.ForeignKey(Credito, on_delete=models.CASCADE, related_name='cuotas', db_column='id_credito')
-    numero_cuota = models.IntegerField()
-    fecha_vencimiento = models.DateField()
-    monto_total = models.DecimalField(max_digits=12, decimal_places=2)
-    estado = models.CharField(max_length=50, default='Pendiente')
+    credito = models.ForeignKey(Credito, on_delete=models.CASCADE, related_name='cuotas', db_column='id_credito', null=True, blank=True)
+    numero_cuota = models.IntegerField(null=True, blank=True)
+    fecha_vencimiento = models.DateField(null=True, blank=True)
+    monto_total = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    estado = models.CharField(max_length=50, default='Pendiente', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -275,9 +276,9 @@ class CuotaCredito(models.Model):
 
 
 class Pago(models.Model):
-    monto = models.DecimalField(max_digits=12, decimal_places=2)
-    fecha = models.DateField()
-    metodo_pago = models.CharField(max_length=50)
+    monto = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    fecha = models.DateField(null=True, blank=True)
+    metodo_pago = models.CharField(max_length=50, null=True, blank=True)
     descripcion = models.TextField(null=True, blank=True)
     id_factura = models.ForeignKey(Factura, on_delete=models.SET_NULL, null=True, blank=True, related_name='pagos', db_column='id_factura')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -288,14 +289,14 @@ class Pago(models.Model):
 
 
 class Movimiento(models.Model):
-    monto = models.DecimalField(max_digits=12, decimal_places=2)
+    monto = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     fecha = models.DateField(null=True, blank=True)
     descripcion = models.TextField(null=True, blank=True)
     categoria = models.CharField(max_length=100, null=True, blank=True)
-    pagado = models.BooleanField(default=False)
+    pagado = models.BooleanField(default=False, null=True, blank=True)
     forma_pago = models.CharField(max_length=50, null=True, blank=True)
     metodo_pago = models.CharField(max_length=50, null=True, blank=True)
-    es_cobro = models.BooleanField(default=False)
+    es_cobro = models.BooleanField(default=False, null=True, blank=True)
     destinatario = models.CharField(max_length=255, null=True, blank=True)
     cobrar_a = models.CharField(max_length=255, null=True, blank=True)
     fecha_pago_limite = models.DateField(null=True, blank=True)
@@ -310,10 +311,10 @@ class Movimiento(models.Model):
 
 
 class Mantenimiento(models.Model):
-    maquina = models.ForeignKey(Maquina, on_delete=models.CASCADE, related_name='mantenimientos', db_column='id_maquina')
-    fecha = models.DateField()
-    descripcion = models.TextField()
-    estado = models.CharField(max_length=50, default='Pendiente')
+    maquina = models.ForeignKey(Maquina, on_delete=models.CASCADE, related_name='mantenimientos', db_column='id_maquina', null=True, blank=True)
+    fecha = models.DateField(null=True, blank=True)
+    descripcion = models.TextField(null=True, blank=True)
+    estado = models.CharField(max_length=50, default='Pendiente', null=True, blank=True)
     costo_total = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -323,16 +324,16 @@ class Mantenimiento(models.Model):
 
 
 class Insumo(models.Model):
-    nombre = models.CharField(max_length=255)
-    categoria = models.CharField(max_length=100)
-    unidad = models.CharField(max_length=50)
-    stock_actual = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    stock_minimo = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    nombre = models.CharField(max_length=255, null=True, blank=True)
+    categoria = models.CharField(max_length=100, null=True, blank=True)
+    unidad = models.CharField(max_length=50, null=True, blank=True)
+    stock_actual = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+    stock_minimo = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
     proveedor = models.CharField(max_length=255, null=True, blank=True)
     fecha_vencimiento = models.DateField(null=True, blank=True)
     observaciones = models.TextField(null=True, blank=True)
-    activo = models.BooleanField(default=True)
+    activo = models.BooleanField(default=True, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
