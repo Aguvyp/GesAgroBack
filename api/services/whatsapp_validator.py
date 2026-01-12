@@ -294,15 +294,51 @@ def validate_campo_data(data: Dict) -> Tuple[bool, Optional[str], Dict]:
     errors = []
     
     # Preservar usuario_id si está presente
+    usuario_id = None
     if 'usuario_id' in data:
-        validated_data['usuario_id'] = data['usuario_id']
-        logger.debug(f"   ✓ usuario_id preservado: {data['usuario_id']}")
+        usuario_id = data['usuario_id']
+        validated_data['usuario_id'] = usuario_id
+        logger.debug(f"   ✓ usuario_id preservado: {usuario_id}")
     
     # Validar nombre (requerido)
     if 'nombre' in data and data['nombre']:
         validated_data['nombre'] = data['nombre']
     else:
         errors.append("El nombre del campo es requerido")
+    
+    # Validar propio (opcional, por defecto True)
+    if 'propio' in data:
+        validated_data['propio'] = bool(data['propio'])
+    else:
+        validated_data['propio'] = True  # Por defecto es propio
+    
+    # Validar cliente_id si propio=False
+    if not validated_data.get('propio', True):
+        if 'cliente_id' in data and data['cliente_id']:
+            cliente_id = data['cliente_id']
+            # Validar que el cliente pertenezca al usuario
+            if usuario_id:
+                from ..models import Cliente
+                try:
+                    cliente = Cliente.objects.get(id=cliente_id, usuario_id=usuario_id)
+                    validated_data['cliente_id'] = cliente_id
+                    logger.debug(f"   ✓ Cliente validado: {cliente.nombre} (ID: {cliente_id})")
+                except Cliente.DoesNotExist:
+                    errors.append(f"El cliente con ID {cliente_id} no existe o no pertenece al usuario")
+            else:
+                # Si no hay usuario_id, solo validar que el cliente exista
+                from ..models import Cliente
+                try:
+                    cliente = Cliente.objects.get(id=cliente_id)
+                    validated_data['cliente_id'] = cliente_id
+                    logger.debug(f"   ✓ Cliente validado: {cliente.nombre} (ID: {cliente_id})")
+                except Cliente.DoesNotExist:
+                    errors.append(f"El cliente con ID {cliente_id} no existe")
+        else:
+            errors.append("Si el campo no es propio, debe especificar un cliente_id")
+    else:
+        # Si es propio, no debe tener cliente_id
+        validated_data['cliente_id'] = None
     
     # Hectáreas (opcional)
     if 'hectareas' in data and data['hectareas']:

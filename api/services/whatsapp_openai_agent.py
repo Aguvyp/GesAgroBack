@@ -250,17 +250,19 @@ def get_openai_functions() -> List[Dict]:
                 }
             }
         },
-        {
+            {
             "type": "function",
             "function": {
                 "name": "create_campo",
-                "description": "Crea un nuevo campo. Requiere: nombre. Opcional: hectareas, detalles.",
+                "description": "Crea un nuevo campo. Requiere: nombre. Opcional: hectareas, detalles, propio, cliente_id. Si propio=false, cliente_id es requerido. Si propio=true (por defecto), el campo es del usuario y cliente_id debe ser null.",
                 "parameters": {
                     "type": "object",
                     "properties": {
                         "nombre": {"type": "string", "description": "Nombre del campo"},
                         "hectareas": {"type": "number", "description": "Hectáreas del campo (opcional)"},
-                        "detalles": {"type": "string", "description": "Detalles adicionales (opcional)"}
+                        "detalles": {"type": "string", "description": "Detalles adicionales (opcional)"},
+                        "propio": {"type": "boolean", "description": "Si el campo es propio del usuario (true) o pertenece a un cliente (false). Por defecto es true."},
+                        "cliente_id": {"type": "integer", "description": "ID del cliente si propio=false. Requerido si propio=false."}
                     },
                     "required": ["nombre"]
                 }
@@ -364,11 +366,11 @@ def get_openai_functions() -> List[Dict]:
             "type": "function",
             "function": {
                 "name": "get_clientes",
-                "description": "Obtiene lista de clientes.",
+                "description": "Obtiene lista de clientes del usuario. Útil cuando el usuario quiere crear un campo no propio y necesita seleccionar un cliente.",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "limit": {"type": "integer"}
+                        "limit": {"type": "integer", "description": "Límite de resultados (opcional, por defecto 100)"}
                     }
                 }
             }
@@ -891,11 +893,15 @@ def call_function(function_name: str, arguments: Dict, usuario_id: Optional[int]
         elif function_name == "get_clientes":
             queryset = Cliente.objects.all()
             
-            # Filtrar por usuario_id si se proporciona
-            if 'usuario_id' in arguments:
+            # Filtrar por usuario_id (siempre requerido)
+            if usuario_id:
+                queryset = queryset.filter(usuario_id=usuario_id)
+            elif 'usuario_id' in arguments:
                 queryset = queryset.filter(usuario_id=arguments['usuario_id'])
+            else:
+                return {"error": "usuario_id es requerido para obtener clientes"}
             
-            limit = arguments.get('limit', 10)
+            limit = arguments.get('limit', 100)
             clientes = queryset[:limit]
             
             from ..serializers import ClienteSerializer
@@ -948,7 +954,7 @@ def process_with_openai(message: str, usuario_id: Optional[int] = None) -> Tuple
             messages=[
                 {
                     "role": "system",
-                    "content": "Eres un asistente que ayuda a gestionar una empresa agrícola. Puedes crear, leer, actualizar y eliminar registros de trabajos, costos, campos y clientes. Responde siempre en español de forma clara y concisa.\n\nREGLAS CRÍTICAS:\n- SIEMPRE crea los registros que el usuario solicite, SIN IMPORTAR LA FECHA (pasada, presente o futura).\n- Las fechas futuras están PERMITIDAS y son NORMALES. Los trabajos con fechas futuras se crean con estado 'Pendiente'.\n- NUNCA rechaces crear un registro por la fecha. Si el usuario pide crear un trabajo, créalo sin importar la fecha.\n- El cultivo es opcional. Solo inclúyelo si se menciona explícitamente en el mensaje del usuario.\n- IMPORTANTE: Si el usuario usa palabras como 'completar', 'marcar como completado', 'terminar', 'finalizar', 'actualizar estado a completado', etc., NO crees un nuevo registro. En su lugar, usa update_trabajo para actualizar el trabajo existente que coincida con los criterios (campo, tipo_trabajo, fecha_inicio, y opcionalmente cultivo).\n- Si el mensaje menciona 'completar' o 'marcar como completado' y proporciona campo + tipo_trabajo + fecha (y opcionalmente cultivo), busca el trabajo existente y actualiza su estado a 'Completado'.\n- Tu función es CREAR los registros que el usuario solicite, no validar si las fechas tienen sentido."
+                    "content": "Eres un asistente que ayuda a gestionar una empresa agrícola. Puedes crear, leer, actualizar y eliminar registros de trabajos, costos, campos y clientes. Responde siempre en español de forma clara y concisa.\n\nREGLAS CRÍTICAS:\n- SIEMPRE crea los registros que el usuario solicite, SIN IMPORTAR LA FECHA (pasada, presente o futura).\n- Las fechas futuras están PERMITIDAS y son NORMALES. Los trabajos con fechas futuras se crean con estado 'Pendiente'.\n- NUNCA rechaces crear un registro por la fecha. Si el usuario pide crear un trabajo, créalo sin importar la fecha.\n- El cultivo es opcional. Solo inclúyelo si se menciona explícitamente en el mensaje del usuario.\n- IMPORTANTE: Si el usuario usa palabras como 'completar', 'marcar como completado', 'terminar', 'finalizar', 'actualizar estado a completado', etc., NO crees un nuevo registro. En su lugar, usa update_trabajo para actualizar el trabajo existente que coincida con los criterios (campo, tipo_trabajo, fecha_inicio, y opcionalmente cultivo).\n- Si el mensaje menciona 'completar' o 'marcar como completado' y proporciona campo + tipo_trabajo + fecha (y opcionalmente cultivo), busca el trabajo existente y actualiza su estado a 'Completado'.\n- Tu función es CREAR los registros que el usuario solicite, no validar si las fechas tienen sentido.\n\nCAMPOS Y CLIENTES:\n- Al crear un campo, si el usuario menciona que el campo pertenece a un cliente o que 'no es propio', establece propio=false y cliente_id con el ID del cliente mencionado.\n- Si el usuario quiere crear un campo no propio pero no especifica el cliente, primero usa get_clientes para listar los clientes disponibles y pregunta al usuario cuál cliente desea asignar.\n- Si el usuario no menciona nada sobre si el campo es propio o de un cliente, asume que es propio (propio=true, cliente_id=null)."
                 },
                 {
                     "role": "user",

@@ -85,6 +85,8 @@ class Campo(models.Model):
     longitud = models.DecimalField(max_digits=11, decimal_places=8, null=True, blank=True)
     detalles = models.TextField(null=True, blank=True)
     usuario_id = models.IntegerField(null=True, blank=True, db_index=True)
+    propio = models.BooleanField(default=True, null=True, blank=True)
+    cliente_id = models.IntegerField(null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
