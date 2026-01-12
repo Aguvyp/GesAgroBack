@@ -1,7 +1,7 @@
 from django.urls import path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
-from .controllers.auth_controller import RegisterView, LoginView, UpdatePasswordView, TestView, HealthCheckView
+from .controllers.auth_controller import RegisterView, LoginView, UpdatePasswordView, TestView, HealthCheckView, LogoutView
 from .apis.usuarios_api import get_usuarios
 from .controllers.usuarios_controller import UsuarioCreateAPIView, UsuarioUpdateAPIView, UsuarioDestroyAPIView
 from .apis.campos_api import get_campos
@@ -57,6 +57,7 @@ urlpatterns = [
     # Auth & Health
     path('auth/register/', RegisterView.as_view(), name='auth-register'),
     path('auth/login/', LoginView.as_view(), name='auth-login'),
+    path('auth/logout/', LogoutView.as_view(), name='auth-logout'),
     path('auth/update-password/', UpdatePasswordView.as_view(), name='auth-update-password'),
     path('auth/test/', TestView.as_view(), name='auth-test'),
     path('health/', HealthCheckView.as_view(), name='health'),

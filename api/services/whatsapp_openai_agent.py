@@ -376,18 +376,33 @@ def get_openai_functions() -> List[Dict]:
     ]
 
 
-def call_function(function_name: str, arguments: Dict) -> Dict[str, Any]:
+def call_function(function_name: str, arguments: Dict, usuario_id: Optional[int] = None) -> Dict[str, Any]:
     """
     Ejecuta una función basándose en su nombre y argumentos.
     
     Args:
         function_name: Nombre de la función a ejecutar
         arguments: Argumentos para la función
+        usuario_id: ID del usuario para filtrar/crear registros
         
     Returns:
         Resultado de la ejecución de la función
     """
     logger.info(f"   🔧 Ejecutando función: {function_name} con argumentos: {arguments}")
+    
+    # Agregar usuario_id a los argumentos de creación
+    if usuario_id is not None:
+        if function_name in ['create_trabajo', 'create_costo', 'create_campo', 'create_cliente']:
+            arguments['usuario_id'] = usuario_id
+        
+        # Filtrar por usuario en TODAS las operaciones (crear, leer, actualizar, eliminar)
+        funciones_con_filtro = [
+            'get_trabajos', 'get_costos', 'get_campos', 'get_clientes',
+            'update_trabajo', 'update_costo', 'update_campo', 'update_cliente',
+            'delete_trabajo', 'delete_costo', 'delete_campo', 'delete_cliente'
+        ]
+        if function_name in funciones_con_filtro:
+            arguments['usuario_id'] = usuario_id
     
     try:
         # Funciones de creación
@@ -451,7 +466,7 @@ def call_function(function_name: str, arguments: Dict) -> Dict[str, Any]:
             
             # Buscar campo por nombre
             if 'campo' in arguments:
-                campo = find_field_by_name(arguments['campo'])
+                campo = find_field_by_name(arguments['campo'], usuario_id=usuario_id)
                 if campo:
                     arguments['campo_id'] = campo.id
                     del arguments['campo']
@@ -539,18 +554,24 @@ def call_function(function_name: str, arguments: Dict) -> Dict[str, Any]:
         elif function_name == "update_trabajo":
             from ..serializers import TrabajoSerializer
             
+            queryset = Trabajo.objects.all()
+            
+            # Filtrar por usuario_id si se proporciona
+            if 'usuario_id' in arguments:
+                queryset = queryset.filter(usuario_id=arguments['usuario_id'])
+            
             # Buscar el trabajo
             trabajo = None
             
             # Si viene ID, buscar por ID
             if 'id' in arguments and arguments['id']:
                 try:
-                    trabajo = Trabajo.objects.get(id=arguments['id'])
+                    trabajo = queryset.get(id=arguments['id'])
                 except Trabajo.DoesNotExist:
                     return {"error": f"Trabajo con ID {arguments['id']} no encontrado"}
             # Si no viene ID, buscar por campo + tipo_trabajo + fecha_inicio (y opcionalmente cultivo)
             elif 'campo' in arguments and 'tipo_trabajo' in arguments:
-                campo = find_field_by_name(arguments['campo'])
+                campo = find_field_by_name(arguments['campo'], usuario_id=usuario_id)
                 if not campo:
                     return {"error": f"Campo '{arguments['campo']}' no encontrado"}
                 
@@ -559,7 +580,7 @@ def call_function(function_name: str, arguments: Dict) -> Dict[str, Any]:
                     return {"error": f"Tipo de trabajo '{arguments['tipo_trabajo']}' no encontrado"}
                 
                 # Construir query
-                queryset = Trabajo.objects.filter(campo=campo, id_tipo_trabajo=tipo)
+                queryset = queryset.filter(campo=campo, id_tipo_trabajo=tipo)
                 
                 # Si viene fecha_inicio, filtrar por fecha
                 if 'fecha_inicio' in arguments and arguments['fecha_inicio']:
@@ -645,8 +666,11 @@ def call_function(function_name: str, arguments: Dict) -> Dict[str, Any]:
                 return {"error": str(serializer.errors)}
         
         elif function_name == "update_costo":
+            queryset = Costo.objects.all()
+            if 'usuario_id' in arguments:
+                queryset = queryset.filter(usuario_id=arguments['usuario_id'])
             try:
-                costo = Costo.objects.get(id=arguments['id'])
+                costo = queryset.get(id=arguments['id'])
                 from ..serializers import CostoSerializer
                 
                 update_data = {k: v for k, v in arguments.items() if k != 'id' and v is not None}
@@ -686,8 +710,11 @@ def call_function(function_name: str, arguments: Dict) -> Dict[str, Any]:
                 return {"error": f"Costo con ID {arguments['id']} no encontrado"}
         
         elif function_name == "update_campo":
+            queryset = Campo.objects.all()
+            if 'usuario_id' in arguments:
+                queryset = queryset.filter(usuario_id=arguments['usuario_id'])
             try:
-                campo = Campo.objects.get(id=arguments['id'])
+                campo = queryset.get(id=arguments['id'])
                 from ..serializers import CampoSerializer
                 
                 update_data = {k: v for k, v in arguments.items() if k != 'id' and v is not None}
@@ -701,8 +728,11 @@ def call_function(function_name: str, arguments: Dict) -> Dict[str, Any]:
                 return {"error": f"Campo con ID {arguments['id']} no encontrado"}
         
         elif function_name == "update_cliente":
+            queryset = Cliente.objects.all()
+            if 'usuario_id' in arguments:
+                queryset = queryset.filter(usuario_id=arguments['usuario_id'])
             try:
-                cliente = Cliente.objects.get(id=arguments['id'])
+                cliente = queryset.get(id=arguments['id'])
                 from ..serializers import ClienteSerializer
                 
                 update_data = {k: v for k, v in arguments.items() if k != 'id' and v is not None}
@@ -717,32 +747,44 @@ def call_function(function_name: str, arguments: Dict) -> Dict[str, Any]:
         
         # Funciones de eliminación
         elif function_name == "delete_trabajo":
+            queryset = Trabajo.objects.all()
+            if 'usuario_id' in arguments:
+                queryset = queryset.filter(usuario_id=arguments['usuario_id'])
             try:
-                trabajo = Trabajo.objects.get(id=arguments['id'])
+                trabajo = queryset.get(id=arguments['id'])
                 trabajo.delete()
                 return {"success": True, "message": f"Trabajo {arguments['id']} eliminado exitosamente"}
             except Trabajo.DoesNotExist:
                 return {"error": f"Trabajo con ID {arguments['id']} no encontrado"}
         
         elif function_name == "delete_costo":
+            queryset = Costo.objects.all()
+            if 'usuario_id' in arguments:
+                queryset = queryset.filter(usuario_id=arguments['usuario_id'])
             try:
-                costo = Costo.objects.get(id=arguments['id'])
+                costo = queryset.get(id=arguments['id'])
                 costo.delete()
                 return {"success": True, "message": f"Costo {arguments['id']} eliminado exitosamente"}
             except Costo.DoesNotExist:
                 return {"error": f"Costo con ID {arguments['id']} no encontrado"}
         
         elif function_name == "delete_campo":
+            queryset = Campo.objects.all()
+            if 'usuario_id' in arguments:
+                queryset = queryset.filter(usuario_id=arguments['usuario_id'])
             try:
-                campo = Campo.objects.get(id=arguments['id'])
+                campo = queryset.get(id=arguments['id'])
                 campo.delete()
                 return {"success": True, "message": f"Campo {arguments['id']} eliminado exitosamente"}
             except Campo.DoesNotExist:
                 return {"error": f"Campo con ID {arguments['id']} no encontrado"}
         
         elif function_name == "delete_cliente":
+            queryset = Cliente.objects.all()
+            if 'usuario_id' in arguments:
+                queryset = queryset.filter(usuario_id=arguments['usuario_id'])
             try:
-                cliente = Cliente.objects.get(id=arguments['id'])
+                cliente = queryset.get(id=arguments['id'])
                 cliente.delete()
                 return {"success": True, "message": f"Cliente {arguments['id']} eliminado exitosamente"}
             except Cliente.DoesNotExist:
@@ -752,8 +794,12 @@ def call_function(function_name: str, arguments: Dict) -> Dict[str, Any]:
         elif function_name == "get_trabajos":
             queryset = Trabajo.objects.all()
             
+            # Filtrar por usuario_id si se proporciona
+            if 'usuario_id' in arguments:
+                queryset = queryset.filter(usuario_id=arguments['usuario_id'])
+            
             if 'campo' in arguments:
-                campo = find_field_by_name(arguments['campo'])
+                campo = find_field_by_name(arguments['campo'], usuario_id=usuario_id)
                 if campo:
                     queryset = queryset.filter(campo=campo)
             
@@ -790,6 +836,10 @@ def call_function(function_name: str, arguments: Dict) -> Dict[str, Any]:
         elif function_name == "get_costos":
             queryset = Costo.objects.all()
             
+            # Filtrar por usuario_id si se proporciona
+            if 'usuario_id' in arguments:
+                queryset = queryset.filter(usuario_id=arguments['usuario_id'])
+            
             if 'pagado' in arguments:
                 queryset = queryset.filter(pagado=arguments['pagado'])
             
@@ -814,6 +864,11 @@ def call_function(function_name: str, arguments: Dict) -> Dict[str, Any]:
         
         elif function_name == "get_campos":
             queryset = Campo.objects.all()
+            
+            # Filtrar por usuario_id si se proporciona
+            if 'usuario_id' in arguments:
+                queryset = queryset.filter(usuario_id=arguments['usuario_id'])
+            
             limit = arguments.get('limit', 10)
             campos = queryset[:limit]
             
@@ -835,6 +890,11 @@ def call_function(function_name: str, arguments: Dict) -> Dict[str, Any]:
         
         elif function_name == "get_clientes":
             queryset = Cliente.objects.all()
+            
+            # Filtrar por usuario_id si se proporciona
+            if 'usuario_id' in arguments:
+                queryset = queryset.filter(usuario_id=arguments['usuario_id'])
+            
             limit = arguments.get('limit', 10)
             clientes = queryset[:limit]
             
@@ -862,12 +922,13 @@ def call_function(function_name: str, arguments: Dict) -> Dict[str, Any]:
         return {"error": f"Error ejecutando función: {str(e)}"}
 
 
-def process_with_openai(message: str) -> Tuple[bool, str]:
+def process_with_openai(message: str, usuario_id: Optional[int] = None) -> Tuple[bool, str]:
     """
     Procesa un mensaje usando OpenAI con function calling.
     
     Args:
         message: Mensaje del usuario
+        usuario_id: ID del usuario (opcional)
         
     Returns:
         Tupla (éxito, respuesta)
@@ -914,7 +975,8 @@ def process_with_openai(message: str) -> Tuple[bool, str]:
                     arguments = {}
                 
                 logger.info(f"   📞 Llamando función: {function_name}")
-                result = call_function(function_name, arguments)
+                result = call_function(function_name, arguments, usuario_id=usuario_id)
+                
                 # Serializar con el serializador personalizado para manejar Decimal y date
                 tool_results.append({
                     "tool_call_id": tool_call.id,

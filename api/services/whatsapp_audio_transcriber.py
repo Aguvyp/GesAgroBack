@@ -1,42 +1,43 @@
 """
-Servicio de transcripción de audio usando Whisper local.
+Servicio de transcripción de audio usando la API de OpenAI (Whisper).
 Procesa archivos de audio de WhatsApp y los transcribe a texto en español.
+No requiere ffmpeg local, usa la API de OpenAI.
 """
 import os
 import tempfile
+import uuid
+import time
 import requests
-import whisper
+import openai
 from typing import Optional
 from django.conf import settings
 import logging
 
 logger = logging.getLogger(__name__)
 
-# Modelo Whisper a usar (base es más rápido, small es más preciso)
-WHISPER_MODEL_NAME = getattr(settings, 'WHISPER_MODEL', 'base')
-
-# Cache del modelo para no cargarlo múltiples veces
-_whisper_model = None
+# Configuración de OpenAI
+OPENAI_API_KEY = getattr(settings, 'OPENAI_API_KEY', '')
+OPENAI_MODEL = getattr(settings, 'OPENAI_MODEL', 'gpt-4o-mini')
 
 
-def get_whisper_model():
+def check_openai_config():
     """
-    Obtiene el modelo Whisper, cargándolo solo una vez.
+    Verifica si la configuración de OpenAI está disponible.
     
     Returns:
-        Modelo Whisper cargado
+        True si OpenAI está configurado, False en caso contrario
     """
-    global _whisper_model
-    if _whisper_model is None:
-        logger.info(f"Cargando modelo Whisper: {WHISPER_MODEL_NAME}")
-        _whisper_model = whisper.load_model(WHISPER_MODEL_NAME)
-        logger.info("Modelo Whisper cargado exitosamente")
-    return _whisper_model
+    if not OPENAI_API_KEY:
+        logger.error("OPENAI_API_KEY no está configurada")
+        return False
+    logger.info("Configuración de OpenAI disponible")
+    return True
 
 
 def download_audio(url: str, timeout: int = 30) -> Optional[str]:
     """
     Descarga un archivo de audio desde una URL.
+    Si la URL es de Twilio, usa autenticación HTTP Basic.
     
     Args:
         url: URL del archivo de audio
@@ -50,24 +51,50 @@ def download_audio(url: str, timeout: int = 30) -> Optional[str]:
         temp_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
         os.makedirs(temp_dir, exist_ok=True)
         
+        # Preparar headers y auth
+        headers = {}
+        auth = None
+        
+        # Si es una URL de Twilio, usar autenticación
+        if 'api.twilio.com' in url:
+            twilio_account_sid = getattr(settings, 'TWILIO_ACCOUNT_SID', None)
+            twilio_auth_token = getattr(settings, 'TWILIO_AUTH_TOKEN', None)
+            
+            if twilio_account_sid and twilio_auth_token:
+                # HTTP Basic Auth para Twilio
+                auth = (twilio_account_sid, twilio_auth_token)
+                logger.info("Usando autenticación Twilio para descargar audio")
+            else:
+                logger.warning("Credenciales de Twilio no encontradas, intentando sin autenticación")
+        
         # Descargar archivo
-        response = requests.get(url, timeout=timeout, stream=True)
+        response = requests.get(url, timeout=timeout, stream=True, auth=auth, headers=headers)
         response.raise_for_status()
         
-        # Crear archivo temporal
-        temp_file = tempfile.NamedTemporaryFile(
-            delete=False,
-            suffix='.ogg',
-            dir=temp_dir
-        )
+        # Crear archivo temporal con nombre más simple (evitar caracteres especiales)
+        temp_filename = f"audio_{uuid.uuid4().hex[:8]}.ogg"
+        file_path = os.path.join(temp_dir, temp_filename)
         
-        # Escribir contenido
-        for chunk in response.iter_content(chunk_size=8192):
-            temp_file.write(chunk)
+        # Escribir contenido directamente al archivo
+        with open(file_path, 'wb') as temp_file:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:  # Filtrar chunks vacíos
+                    temp_file.write(chunk)
+            # Asegurar que todo se escriba al disco
+            temp_file.flush()
+            os.fsync(temp_file.fileno())
         
-        temp_file.close()
-        logger.info(f"Audio descargado: {temp_file.name}")
-        return temp_file.name
+        # Verificar que el archivo se creó correctamente
+        file_path = os.path.abspath(file_path)
+        file_path = os.path.normpath(file_path)  # Normalizar ruta (compatible Windows/Linux)
+        
+        if not os.path.exists(file_path):
+            logger.error(f"El archivo no se creó correctamente: {file_path}")
+            return None
+        
+        file_size = os.path.getsize(file_path)
+        logger.info(f"Audio descargado: {file_path} (tamaño: {file_size} bytes)")
+        return file_path
         
     except Exception as e:
         logger.error(f"Error descargando audio: {str(e)}")
@@ -76,7 +103,8 @@ def download_audio(url: str, timeout: int = 30) -> Optional[str]:
 
 def transcribe_audio(audio_path: str, language: str = 'es') -> Optional[str]:
     """
-    Transcribe un archivo de audio a texto usando Whisper.
+    Transcribe un archivo de audio a texto usando la API de OpenAI (Whisper).
+    No requiere ffmpeg local.
     
     Args:
         audio_path: Ruta al archivo de audio
@@ -85,35 +113,101 @@ def transcribe_audio(audio_path: str, language: str = 'es') -> Optional[str]:
     Returns:
         Texto transcrito o None si falla
     """
+    # Verificar configuración de OpenAI
+    if not check_openai_config():
+        logger.error("No se puede transcribir: OpenAI no está configurado")
+        return None
+    
+    # Convertir a ruta absoluta y normalizar (compatible Windows/Linux)
+    audio_path = os.path.abspath(audio_path)
+    audio_path = os.path.normpath(audio_path)
+    
+    transcription_successful = False
+    
     try:
+        # Verificar que el archivo existe
         if not os.path.exists(audio_path):
             logger.error(f"Archivo de audio no encontrado: {audio_path}")
             return None
         
-        # Cargar modelo
-        model = get_whisper_model()
+        # Verificar que el archivo no esté vacío
+        file_size = os.path.getsize(audio_path)
+        if file_size == 0:
+            logger.error(f"Archivo de audio está vacío: {audio_path}")
+            return None
         
-        # Transcribir
-        logger.info(f"Transcribiendo audio: {audio_path}")
-        result = model.transcribe(audio_path, language=language)
+        logger.info(f"Archivo encontrado: {audio_path} (tamaño: {file_size} bytes)")
         
-        # Extraer texto
-        text = result.get('text', '').strip()
+        # Verificar que el archivo es accesible
+        try:
+            with open(audio_path, 'rb') as test_file:
+                test_file.read(1)  # Leer un byte para verificar acceso
+            logger.info("Archivo es accesible para lectura")
+        except Exception as e:
+            logger.error(f"No se puede acceder al archivo: {str(e)}")
+            return None
         
-        logger.info(f"Transcripción completada: {text[:50]}...")
-        return text
+        # Transcribir usando la API de OpenAI
+        logger.info(f"Transcribiendo audio con OpenAI Whisper API: {audio_path}")
         
+        try:
+            client = openai.OpenAI(api_key=OPENAI_API_KEY)
+            
+            # Abrir el archivo y enviarlo a OpenAI
+            with open(audio_path, 'rb') as audio_file:
+                logger.info("Enviando archivo a OpenAI Whisper API...")
+                transcript = client.audio.transcriptions.create(
+                    model="whisper-1",
+                    file=audio_file,
+                    language=language
+                )
+                
+                text = transcript.text.strip()
+                transcription_successful = True
+                
+                if text:
+                    logger.info(f"Transcripción completada: {text[:100]}...")
+                else:
+                    logger.warning("Transcripción completada pero el texto está vacío")
+                
+                return text
+                
+        except openai.APIError as e:
+            logger.error(f"Error de API de OpenAI: {str(e)}")
+            return None
+        except Exception as e:
+            logger.error(f"Error durante transcripción con OpenAI: {str(e)}", exc_info=True)
+            return None
+        
+    except FileNotFoundError as e:
+        logger.error(f"Archivo no encontrado durante transcripción: {str(e)}")
+        return None
     except Exception as e:
-        logger.error(f"Error transcribiendo audio: {str(e)}")
+        logger.error(f"Error transcribiendo audio: {str(e)}", exc_info=True)
         return None
     finally:
-        # Limpiar archivo temporal
-        try:
-            if os.path.exists(audio_path):
-                os.remove(audio_path)
-                logger.info(f"Archivo temporal eliminado: {audio_path}")
-        except Exception as e:
-            logger.warning(f"Error eliminando archivo temporal: {str(e)}")
+        # Limpiar archivo temporal SOLO si la transcripción fue exitosa
+        if transcription_successful:
+            try:
+                time.sleep(0.2)  # Pequeño delay para asegurar que el archivo no esté en uso
+                if os.path.exists(audio_path):
+                    try:
+                        os.remove(audio_path)
+                        logger.info(f"Archivo temporal eliminado: {audio_path}")
+                    except PermissionError:
+                        logger.warning(f"No se pudo eliminar archivo (puede estar en uso): {audio_path}")
+                        # Intentar de nuevo después de un delay
+                        time.sleep(1)
+                        try:
+                            os.remove(audio_path)
+                            logger.info(f"Archivo temporal eliminado (segundo intento): {audio_path}")
+                        except Exception as e2:
+                            logger.warning(f"Error eliminando archivo temporal: {str(e2)}")
+            except Exception as e:
+                logger.warning(f"Error limpiando archivo temporal: {str(e)}")
+        else:
+            logger.warning("Transcripción falló, manteniendo archivo para debugging")
+            logger.warning(f"Archivo: {audio_path if 'audio_path' in locals() else 'N/A'}")
 
 
 def transcribe_from_url(audio_url: str, language: str = 'es') -> Optional[str]:

@@ -5,6 +5,7 @@ from drf_spectacular.utils import extend_schema
 from django.shortcuts import get_object_or_404
 from ..models import Factura
 from ..serializers import FacturaSerializer
+from ..utils import get_usuario_id_from_request
 
 @extend_schema(
     operation_id='get_facturas',
@@ -17,11 +18,21 @@ def get_facturas(request, pk=None):
     """
     Obtiene una lista de facturas o una factura específica si se proporciona un pk.
     """
+    usuario_id = get_usuario_id_from_request(request)
+    
+    if not usuario_id:
+        return Response(
+            {"detail": "Token de acceso requerido"}, 
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    
+    queryset = Factura.objects.filter(usuario_id=usuario_id)
+    
     if pk is not None:
-        factura = get_object_or_404(Factura, pk=pk)
+        factura = get_object_or_404(queryset, pk=pk)
         serializer = FacturaSerializer(factura)
         return Response(serializer.data)
     else:
-        facturas = Factura.objects.all()
+        facturas = queryset
         serializer = FacturaSerializer(facturas, many=True)
         return Response(serializer.data)

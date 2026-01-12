@@ -2,9 +2,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
-from rest_framework_simplejwt.tokens import RefreshToken
 from ..serializers import RegisterSerializer, LoginSerializer, UsuarioSerializer, UpdatePasswordSerializer
 from ..models import Usuario, Personal
+from ..services.auth_token_service import create_auth_token, invalidate_token
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
@@ -39,16 +39,18 @@ class LoginView(APIView):
                 #    usado durante el registro, hashea la contraseña en texto plano y
                 #    la compara con el hash almacenado en la BD
                 if user.check_password(password) and user.is_active:
-                    # 3. Si coinciden las password, devolver el objeto
-                    refresh = RefreshToken.for_user(user)
+                    # 3. Si coinciden las password, crear token personalizado
+                    auth_token = create_auth_token(user.id)
+                    
                     # Buscar Personal por nombre ya que no hay relación directa en la BD
                     try:
                         personal = Personal.objects.get(nombre=user.nombre)
                         personal_id = personal.id
                     except Personal.DoesNotExist:
                         personal_id = None
+                    
                     return Response({
-                        "access_token": str(refresh.access_token),
+                        "access_token": auth_token.access_token,
                         "token_type": "bearer",
                         "role": user.rol,
                         "user_id": user.id,
@@ -100,3 +102,13 @@ class HealthCheckView(APIView):
             "timestamp": timezone.now().isoformat()
         })
 
+class LogoutView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        access_token = request.headers.get('Authorization', '').replace('Bearer ', '')
+        if not access_token:
+            access_token = request.data.get('access_token')
+        
+        if invalidate_token(access_token):
+            return Response({"message": "Sesión cerrada exitosamente"})
+        return Response({"detail": "Token inválido"}, status=status.HTTP_400_BAD_REQUEST)

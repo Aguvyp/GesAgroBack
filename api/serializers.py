@@ -3,7 +3,7 @@ from .models import (
     Usuario, Personal, Campo, Cliente, Maquina, CampoCliente, 
     Costo, Factura, FacturaItem, Credito, CuotaCredito, Pago, 
     Movimiento, Mantenimiento, Insumo, TipoTrabajo, Trabajo, 
-    TrabajoPersonal
+    TrabajoPersonal, AuthToken
 )
 
 # --- Auth Serializers ---
@@ -48,6 +48,12 @@ class LoginSerializer(serializers.Serializer):
 class UpdatePasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
+
+class AuthTokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AuthToken
+        fields = ['id', 'access_token', 'usuario_id', 'created_at', 'expires_at', 'is_active']
+        read_only_fields = ['id', 'access_token', 'created_at']
 
 # --- Entidades Serializers ---
 

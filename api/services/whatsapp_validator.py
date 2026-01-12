@@ -9,56 +9,66 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def find_field_by_name(name: str) -> Optional[Campo]:
+def find_field_by_name(name: str, usuario_id: Optional[int] = None) -> Optional[Campo]:
     """
     Busca un campo por nombre (búsqueda parcial, case-insensitive).
     
     Args:
         name: Nombre del campo a buscar
+        usuario_id: ID del usuario para filtrar (opcional)
         
     Returns:
         Campo si se encuentra, None si no
     """
     try:
+        queryset = Campo.objects.all()
+        if usuario_id:
+            queryset = queryset.filter(usuario_id=usuario_id)
+        
         # Buscar coincidencia exacta primero
-        campo = Campo.objects.get(nombre__iexact=name)
+        campo = queryset.get(nombre__iexact=name)
         return campo
     except Campo.DoesNotExist:
         # Buscar coincidencia parcial
         try:
-            campo = Campo.objects.filter(nombre__icontains=name).first()
+            campo = queryset.filter(nombre__icontains=name).first()
             return campo
         except Exception:
             return None
     except Campo.MultipleObjectsReturned:
         # Si hay múltiples, tomar el primero
-        return Campo.objects.filter(nombre__iexact=name).first()
+        return queryset.filter(nombre__iexact=name).first()
     except Exception as e:
         logger.error(f"Error buscando campo: {str(e)}")
         return None
 
 
-def find_client_by_name(name: str) -> Optional[Cliente]:
+def find_client_by_name(name: str, usuario_id: Optional[int] = None) -> Optional[Cliente]:
     """
     Busca un cliente por nombre (búsqueda parcial, case-insensitive).
     
     Args:
         name: Nombre del cliente a buscar
+        usuario_id: ID del usuario para filtrar (opcional)
         
     Returns:
         Cliente si se encuentra, None si no
     """
     try:
-        cliente = Cliente.objects.get(nombre__iexact=name)
+        queryset = Cliente.objects.all()
+        if usuario_id:
+            queryset = queryset.filter(usuario_id=usuario_id)
+        
+        cliente = queryset.get(nombre__iexact=name)
         return cliente
     except Cliente.DoesNotExist:
         try:
-            cliente = Cliente.objects.filter(nombre__icontains=name).first()
+            cliente = queryset.filter(nombre__icontains=name).first()
             return cliente
         except Exception:
             return None
     except Cliente.MultipleObjectsReturned:
-        return Cliente.objects.filter(nombre__iexact=name).first()
+        return queryset.filter(nombre__iexact=name).first()
     except Exception as e:
         logger.error(f"Error buscando cliente: {str(e)}")
         return None
@@ -104,6 +114,11 @@ def validate_trabajo_data(data: Dict) -> Tuple[bool, Optional[str], Dict]:
     validated_data = {}
     errors = []
     
+    # Preservar usuario_id si está presente
+    if 'usuario_id' in data:
+        validated_data['usuario_id'] = data['usuario_id']
+        logger.debug(f"   ✓ usuario_id preservado: {data['usuario_id']}")
+    
     # Validar tipo de trabajo (puede venir como 'tipo_trabajo' o 'id_tipo_trabajo')
     logger.debug("   Validando tipo de trabajo...")
     if 'id_tipo_trabajo' in data:
@@ -132,18 +147,28 @@ def validate_trabajo_data(data: Dict) -> Tuple[bool, Optional[str], Dict]:
     # Validar campo (puede venir como 'campo' o 'campo_id')
     logger.debug("   Validando campo...")
     if 'campo_id' in data:
-        # Si ya viene el ID, validar que exista
+        # Si ya viene el ID, validar que exista y pertenezca al usuario
         from ..models import Campo
         try:
-            campo = Campo.objects.get(id=data['campo_id'])
-            validated_data['campo_id'] = campo.id
-            logger.debug(f"   ✓ Campo encontrado por ID: {campo.nombre} (ID: {campo.id})")
-        except Campo.DoesNotExist:
-            errors.append(f"No se encontró el campo con ID: {data['campo_id']}")
-            logger.error(f"   ❌ Campo con ID {data['campo_id']} no existe")
+            queryset = Campo.objects.filter(id=data['campo_id'])
+            # Filtrar por usuario_id si está disponible
+            if 'usuario_id' in data and data['usuario_id']:
+                queryset = queryset.filter(usuario_id=data['usuario_id'])
+            campo = queryset.first()
+            if campo:
+                validated_data['campo_id'] = campo.id
+                logger.debug(f"   ✓ Campo encontrado por ID: {campo.nombre} (ID: {campo.id})")
+            else:
+                errors.append(f"No se encontró el campo con ID: {data['campo_id']} o no pertenece al usuario")
+                logger.error(f"   ❌ Campo con ID {data['campo_id']} no existe o no pertenece al usuario")
+        except Exception as e:
+            errors.append(f"Error validando campo: {str(e)}")
+            logger.error(f"   ❌ Error validando campo: {str(e)}")
     elif 'campo' in data:
         logger.debug(f"   Buscando campo por nombre: '{data['campo']}'")
-        campo = find_field_by_name(data['campo'])
+        # Usar usuario_id si está disponible en los datos
+        usuario_id = data.get('usuario_id')
+        campo = find_field_by_name(data['campo'], usuario_id=usuario_id)
         if not campo:
             errors.append(f"No se encontró el campo: {data['campo']}")
             logger.error(f"   ❌ Campo '{data['campo']}' no encontrado en BD")
@@ -211,6 +236,11 @@ def validate_costo_data(data: Dict) -> Tuple[bool, Optional[str], Dict]:
     validated_data = {}
     errors = []
     
+    # Preservar usuario_id si está presente
+    if 'usuario_id' in data:
+        validated_data['usuario_id'] = data['usuario_id']
+        logger.debug(f"   ✓ usuario_id preservado: {data['usuario_id']}")
+    
     # Validar monto (requerido)
     if 'monto' in data and data['monto']:
         validated_data['monto'] = float(data['monto'])
@@ -263,6 +293,11 @@ def validate_campo_data(data: Dict) -> Tuple[bool, Optional[str], Dict]:
     validated_data = {}
     errors = []
     
+    # Preservar usuario_id si está presente
+    if 'usuario_id' in data:
+        validated_data['usuario_id'] = data['usuario_id']
+        logger.debug(f"   ✓ usuario_id preservado: {data['usuario_id']}")
+    
     # Validar nombre (requerido)
     if 'nombre' in data and data['nombre']:
         validated_data['nombre'] = data['nombre']
@@ -295,6 +330,11 @@ def validate_cliente_data(data: Dict) -> Tuple[bool, Optional[str], Dict]:
     """
     validated_data = {}
     errors = []
+    
+    # Preservar usuario_id si está presente
+    if 'usuario_id' in data:
+        validated_data['usuario_id'] = data['usuario_id']
+        logger.debug(f"   ✓ usuario_id preservado: {data['usuario_id']}")
     
     # Validar nombre (requerido)
     if 'nombre' in data and data['nombre']:

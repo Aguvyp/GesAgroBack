@@ -5,6 +5,7 @@ from drf_spectacular.utils import extend_schema
 from django.shortcuts import get_object_or_404
 from ..models import Movimiento
 from ..serializers import MovimientoSerializer
+from ..utils import get_usuario_id_from_request
 
 @extend_schema(
     operation_id='get_movimientos',
@@ -17,11 +18,21 @@ def get_movimientos(request, pk=None):
     """
     Obtiene una lista de movimientos o un movimiento específico si se proporciona un pk.
     """
+    usuario_id = get_usuario_id_from_request(request)
+    
+    if not usuario_id:
+        return Response(
+            {"detail": "Token de acceso requerido"}, 
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    
+    queryset = Movimiento.objects.filter(usuario_id=usuario_id)
+    
     if pk is not None:
-        movimiento = get_object_or_404(Movimiento, pk=pk)
+        movimiento = get_object_or_404(queryset, pk=pk)
         serializer = MovimientoSerializer(movimiento)
         return Response(serializer.data)
     else:
-        movimientos = Movimiento.objects.all()
+        movimientos = queryset
         serializer = MovimientoSerializer(movimientos, many=True)
         return Response(serializer.data)

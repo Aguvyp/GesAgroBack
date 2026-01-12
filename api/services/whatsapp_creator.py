@@ -39,6 +39,12 @@ def create_trabajo(data: Dict) -> Tuple[bool, Optional[str], Optional[Dict]]:
                 del data['tipo_trabajo']
         
         logger.debug(f"   Datos finales para serializer: {data}")
+        # Verificar que usuario_id está presente
+        if 'usuario_id' in data:
+            logger.info(f"   ✅ usuario_id presente: {data['usuario_id']}")
+        else:
+            logger.warning("   ⚠️ usuario_id NO está presente en los datos")
+        
         serializer = TrabajoSerializer(data=data)
         
         if serializer.is_valid():
@@ -47,6 +53,7 @@ def create_trabajo(data: Dict) -> Tuple[bool, Optional[str], Optional[Dict]]:
             logger.info(f"   ✅ Trabajo creado exitosamente: ID {trabajo.id}")
             logger.debug(f"   Detalles del trabajo creado:")
             logger.debug(f"      - ID: {trabajo.id}")
+            logger.debug(f"      - usuario_id: {trabajo.usuario_id}")
             logger.debug(f"      - Tipo: {trabajo.id_tipo_trabajo.trabajo if trabajo.id_tipo_trabajo else None}")
             logger.debug(f"      - Cultivo: {trabajo.cultivo}")
             logger.debug(f"      - Campo: {trabajo.campo.nombre if trabajo.campo else None}")
@@ -79,10 +86,16 @@ def create_costo(data: Dict) -> Tuple[bool, Optional[str], Optional[Dict]]:
         Tupla (éxito, mensaje_error, datos_creados)
     """
     try:
+        # Verificar que usuario_id está presente
+        if 'usuario_id' in data:
+            logger.info(f"   ✅ usuario_id presente: {data['usuario_id']}")
+        else:
+            logger.warning("   ⚠️ usuario_id NO está presente en los datos")
+        
         serializer = CostoSerializer(data=data)
         if serializer.is_valid():
             costo = serializer.save()
-            logger.info(f"Costo creado exitosamente: ID {costo.id}")
+            logger.info(f"Costo creado exitosamente: ID {costo.id}, usuario_id: {costo.usuario_id}")
             return True, None, {
                 'id': costo.id,
                 'monto': float(costo.monto),
@@ -110,10 +123,16 @@ def create_campo(data: Dict) -> Tuple[bool, Optional[str], Optional[Dict]]:
         Tupla (éxito, mensaje_error, datos_creados)
     """
     try:
+        # Verificar que usuario_id está presente
+        if 'usuario_id' in data:
+            logger.info(f"   ✅ usuario_id presente: {data['usuario_id']}")
+        else:
+            logger.warning("   ⚠️ usuario_id NO está presente en los datos")
+        
         serializer = CampoSerializer(data=data)
         if serializer.is_valid():
             campo = serializer.save()
-            logger.info(f"Campo creado exitosamente: ID {campo.id}")
+            logger.info(f"Campo creado exitosamente: ID {campo.id}, usuario_id: {campo.usuario_id}")
             return True, None, {
                 'id': campo.id,
                 'nombre': campo.nombre,
@@ -140,10 +159,16 @@ def create_cliente(data: Dict) -> Tuple[bool, Optional[str], Optional[Dict]]:
         Tupla (éxito, mensaje_error, datos_creados)
     """
     try:
+        # Verificar que usuario_id está presente
+        if 'usuario_id' in data:
+            logger.info(f"   ✅ usuario_id presente: {data['usuario_id']}")
+        else:
+            logger.warning("   ⚠️ usuario_id NO está presente en los datos")
+        
         serializer = ClienteSerializer(data=data)
         if serializer.is_valid():
             cliente = serializer.save()
-            logger.info(f"Cliente creado exitosamente: ID {cliente.id}")
+            logger.info(f"Cliente creado exitosamente: ID {cliente.id}, usuario_id: {cliente.usuario_id}")
             return True, None, {
                 'id': cliente.id,
                 'nombre': cliente.nombre,

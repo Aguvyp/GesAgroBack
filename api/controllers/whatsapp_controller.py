@@ -4,7 +4,7 @@ Orquesta todo el flujo: detección de tipo, transcripción, procesamiento con Op
 """
 from typing import Dict, Optional, Tuple
 import logging
-from ..services.whatsapp_auth import is_authorized_phone, normalize_phone_number
+from ..services.whatsapp_auth import is_authorized_phone, normalize_phone_number, get_user_by_phone
 from ..services.whatsapp_audio_transcriber import transcribe_from_url, cleanup_temp_files
 from ..services.whatsapp_openai_agent import process_with_openai
 
@@ -41,6 +41,14 @@ def process_whatsapp_message(
             return False, "❌ No estás autorizado para usar este servicio. Contacta al administrador."
         logger.info("   ✅ Teléfono autorizado")
         
+        # 1.5. Obtener usuario
+        logger.info("\n📋 PASO 1.5: Obteniendo usuario...")
+        user = get_user_by_phone(phone)
+        if not user:
+            logger.error("   ❌ No se pudo obtener el usuario")
+            return False, "❌ Error: No se pudo identificar tu usuario. Contacta al administrador."
+        logger.info(f"   ✅ Usuario identificado: {user.email} (ID: {user.id})")
+        
         # 2. Obtener texto del mensaje (transcribir si es audio)
         logger.info("\n📋 PASO 2: Obteniendo texto del mensaje...")
         text = None
@@ -53,6 +61,10 @@ def process_whatsapp_message(
             is_from_audio = True
             if not text:
                 logger.error("   ❌ Error transcribiendo audio")
+                # Verificar si es un problema de ffmpeg
+                from ..services.whatsapp_audio_transcriber import check_ffmpeg
+                if not check_ffmpeg():
+                    return False, "❌ No puedo transcribir audio porque ffmpeg no está instalado en el servidor. Por favor, contacta al administrador o envía un mensaje de texto."
                 return False, "❌ No pude transcribir el audio. Por favor, intenta enviar un mensaje de texto."
             logger.info(f"   ✅ Audio transcrito: {text[:100]}...")
         elif message_text:
@@ -66,7 +78,7 @@ def process_whatsapp_message(
         logger.info("\n📋 PASO 3: Procesando con OpenAI...")
         logger.info(f"   Texto: {text}")
         
-        success, response_message = process_with_openai(text)
+        success, response_message = process_with_openai(text, usuario_id=user.id)
         
         if success:
             if is_from_audio:

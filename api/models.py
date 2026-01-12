@@ -49,6 +49,23 @@ class Usuario(AbstractBaseUser):
     def __str__(self):
         return self.email
 
+class AuthToken(models.Model):
+    access_token = models.CharField(max_length=255, unique=True, db_index=True)
+    usuario_id = models.IntegerField(db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    
+    class Meta:
+        db_table = 'auth_tokens'
+        indexes = [
+            models.Index(fields=['access_token']),
+            models.Index(fields=['usuario_id']),
+        ]
+    
+    def __str__(self):
+        return f"Token for user {self.usuario_id}"
+
 class TipoTrabajo(models.Model):
     trabajo = models.CharField(max_length=100, unique=True, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -67,6 +84,7 @@ class Campo(models.Model):
     latitud = models.DecimalField(max_digits=10, decimal_places=8, null=True, blank=True)
     longitud = models.DecimalField(max_digits=11, decimal_places=8, null=True, blank=True)
     detalles = models.TextField(null=True, blank=True)
+    usuario_id = models.IntegerField(null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -85,6 +103,7 @@ class Cliente(models.Model):
     observaciones = models.TextField(null=True, blank=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_modificacion = models.DateTimeField(auto_now=True)
+    usuario_id = models.IntegerField(null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -101,6 +120,7 @@ class CampoCliente(models.Model):
     fecha_asignacion = models.DateTimeField(auto_now_add=True)
     observaciones = models.TextField(null=True, blank=True)
     activo = models.BooleanField(default=True, null=True, blank=True)
+    usuario_id = models.IntegerField(null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -120,6 +140,7 @@ class Maquina(models.Model):
     superficie_total_ha = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
     horas_trabajadas = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
     ultimo_trabajo = models.CharField(max_length=255, null=True, blank=True)
+    usuario_id = models.IntegerField(null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -138,6 +159,7 @@ class Personal(models.Model):
     horas_trabajadas = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
     trabajos_completados = models.IntegerField(default=0, null=True, blank=True)
     ultimo_trabajo = models.CharField(max_length=255, null=True, blank=True)
+    usuario_id = models.IntegerField(null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     # Campo usuario comentado porque la columna no existe en la base de datos
@@ -168,6 +190,7 @@ class Trabajo(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     horas_trabajadas = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+    usuario_id = models.IntegerField(null=True, blank=True, db_index=True)
     
     personal = models.ManyToManyField(Personal, through='TrabajoPersonal', related_name='trabajos')
     maquinas = models.ManyToManyField(Maquina, through='TrabajoMaquina', related_name='trabajos')
@@ -211,6 +234,7 @@ class Costo(models.Model):
     es_cobro = models.BooleanField(default=False, null=True, blank=True)
     cobrar_a = models.CharField(max_length=255, null=True, blank=True)
     id_trabajo = models.ForeignKey(Trabajo, on_delete=models.SET_NULL, null=True, blank=True, related_name='costos', db_column='id_trabajo')
+    usuario_id = models.IntegerField(null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -227,6 +251,7 @@ class Factura(models.Model):
     monto_pagado = models.DecimalField(max_digits=12, decimal_places=2, default=0.00, null=True, blank=True)
     estado = models.CharField(max_length=50, default='Pendiente', null=True, blank=True)
     observaciones = models.TextField(null=True, blank=True)
+    usuario_id = models.IntegerField(null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -254,6 +279,7 @@ class Credito(models.Model):
     plazo_meses = models.IntegerField(null=True, blank=True)
     fecha_desembolso = models.DateField(null=True, blank=True)
     estado = models.CharField(max_length=50, default='Activo', null=True, blank=True)
+    usuario_id = models.IntegerField(null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -281,6 +307,7 @@ class Pago(models.Model):
     metodo_pago = models.CharField(max_length=50, null=True, blank=True)
     descripcion = models.TextField(null=True, blank=True)
     id_factura = models.ForeignKey(Factura, on_delete=models.SET_NULL, null=True, blank=True, related_name='pagos', db_column='id_factura')
+    usuario_id = models.IntegerField(null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -303,6 +330,7 @@ class Movimiento(models.Model):
     id_trabajo = models.ForeignKey(Trabajo, on_delete=models.SET_NULL, null=True, blank=True, db_column='id_trabajo')
     id_factura = models.ForeignKey(Factura, on_delete=models.SET_NULL, null=True, blank=True, db_column='id_factura')
     fecha_pago = models.DateField(null=True, blank=True)
+    usuario_id = models.IntegerField(null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -316,6 +344,7 @@ class Mantenimiento(models.Model):
     descripcion = models.TextField(null=True, blank=True)
     estado = models.CharField(max_length=50, default='Pendiente', null=True, blank=True)
     costo_total = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    usuario_id = models.IntegerField(null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -334,6 +363,7 @@ class Insumo(models.Model):
     fecha_vencimiento = models.DateField(null=True, blank=True)
     observaciones = models.TextField(null=True, blank=True)
     activo = models.BooleanField(default=True, null=True, blank=True)
+    usuario_id = models.IntegerField(null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

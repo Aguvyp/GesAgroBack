@@ -1,35 +1,45 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 from django.db.models import Sum
 from ..models import Trabajo, Movimiento, Factura, Mantenimiento, Insumo, Campo, Maquina, Personal, Cliente
 from django.utils import timezone
+from ..utils import get_usuario_id_from_request
 
 class DashboardResumenView(APIView):
     def get(self, request):
+        usuario_id = get_usuario_id_from_request(request)
+        
+        if not usuario_id:
+            return Response(
+                {"detail": "Token de acceso requerido"}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
         now = timezone.now()
         first_day_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         
         # Trabajos
-        trabajos_pendientes = Trabajo.objects.filter(estado='Pendiente').count()
-        trabajos_en_curso = Trabajo.objects.filter(estado='En curso').count()
-        trabajos_completados = Trabajo.objects.filter(estado='Completado').count()
+        trabajos_pendientes = Trabajo.objects.filter(usuario_id=usuario_id, estado='Pendiente').count()
+        trabajos_en_curso = Trabajo.objects.filter(usuario_id=usuario_id, estado='En curso').count()
+        trabajos_completados = Trabajo.objects.filter(usuario_id=usuario_id, estado='Completado').count()
         
         # Finanzas del mes
-        movimientos_mes = Movimiento.objects.filter(fecha__gte=first_day_of_month)
+        movimientos_mes = Movimiento.objects.filter(usuario_id=usuario_id, fecha__gte=first_day_of_month)
         ingresos_mes = movimientos_mes.filter(es_cobro=True).aggregate(Sum('monto'))['monto__sum'] or 0.0
         gastos_mes = movimientos_mes.filter(es_cobro=False).aggregate(Sum('monto'))['monto__sum'] or 0.0
         
         # Facturas
-        facturas_pendientes = Factura.objects.filter(estado='Pendiente').count()
-        facturas_vencidas = Factura.objects.filter(estado='Pendiente', fecha_vencimiento__lt=now.date()).count()
+        facturas_pendientes = Factura.objects.filter(usuario_id=usuario_id, estado='Pendiente').count()
+        facturas_vencidas = Factura.objects.filter(usuario_id=usuario_id, estado='Pendiente', fecha_vencimiento__lt=now.date()).count()
         
         # Otros
-        mantenimientos_pendientes = Mantenimiento.objects.filter(estado='Pendiente').count()
+        mantenimientos_pendientes = Mantenimiento.objects.filter(usuario_id=usuario_id, estado='Pendiente').count()
         
         # Para evitar errores si Insumo no tiene stock_minimo (aunque lo definí)
         try:
             from django.db.models import F
-            insumos_bajo_stock = Insumo.objects.filter(stock_actual__lte=F('stock_minimo')).count()
+            insumos_bajo_stock = Insumo.objects.filter(usuario_id=usuario_id, stock_actual__lte=F('stock_minimo')).count()
         except:
             insumos_bajo_stock = 0
 
@@ -48,17 +58,25 @@ class DashboardResumenView(APIView):
 
 class DashboardEstadisticasView(APIView):
     def get(self, request):
+        usuario_id = get_usuario_id_from_request(request)
+        
+        if not usuario_id:
+            return Response(
+                {"detail": "Token de acceso requerido"}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
         return Response({
-            "total_trabajos": Trabajo.objects.count(),
-            "total_campos": Campo.objects.count(),
-            "total_maquinas": Maquina.objects.count(),
-            "total_personal": Personal.objects.count(),
-            "total_clientes": Cliente.objects.count(),
-            "superficie_total_ha": Campo.objects.aggregate(Sum('hectareas'))['hectareas__sum'] or 0.0,
-            "ingresos_totales": Movimiento.objects.filter(es_cobro=True).aggregate(Sum('monto'))['monto__sum'] or 0.0,
-            "gastos_totales": Movimiento.objects.filter(es_cobro=False).aggregate(Sum('monto'))['monto__sum'] or 0.0,
-            "balance_total": (Movimiento.objects.filter(es_cobro=True).aggregate(Sum('monto'))['monto__sum'] or 0.0) - 
-                             (Movimiento.objects.filter(es_cobro=False).aggregate(Sum('monto'))['monto__sum'] or 0.0)
+            "total_trabajos": Trabajo.objects.filter(usuario_id=usuario_id).count(),
+            "total_campos": Campo.objects.filter(usuario_id=usuario_id).count(),
+            "total_maquinas": Maquina.objects.filter(usuario_id=usuario_id).count(),
+            "total_personal": Personal.objects.filter(usuario_id=usuario_id).count(),
+            "total_clientes": Cliente.objects.filter(usuario_id=usuario_id).count(),
+            "superficie_total_ha": Campo.objects.filter(usuario_id=usuario_id).aggregate(Sum('hectareas'))['hectareas__sum'] or 0.0,
+            "ingresos_totales": Movimiento.objects.filter(usuario_id=usuario_id, es_cobro=True).aggregate(Sum('monto'))['monto__sum'] or 0.0,
+            "gastos_totales": Movimiento.objects.filter(usuario_id=usuario_id, es_cobro=False).aggregate(Sum('monto'))['monto__sum'] or 0.0,
+            "balance_total": (Movimiento.objects.filter(usuario_id=usuario_id, es_cobro=True).aggregate(Sum('monto'))['monto__sum'] or 0.0) - 
+                             (Movimiento.objects.filter(usuario_id=usuario_id, es_cobro=False).aggregate(Sum('monto'))['monto__sum'] or 0.0)
         })
 
 class FlutterDashboardResumenView(DashboardResumenView):

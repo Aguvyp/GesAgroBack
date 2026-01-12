@@ -5,6 +5,7 @@ from drf_spectacular.utils import extend_schema
 from django.shortcuts import get_object_or_404
 from ..models import Trabajo
 from ..serializers import TrabajoSerializer
+from ..utils import get_usuario_id_from_request
 
 @extend_schema(
     operation_id='get_trabajos',
@@ -17,12 +18,22 @@ def get_trabajos(request, pk=None):
     """
     Obtiene una lista de trabajos o un trabajo específico si se proporciona un pk.
     """
+    usuario_id = get_usuario_id_from_request(request)
+    
+    if not usuario_id:
+        return Response(
+            {"detail": "Token de acceso requerido"}, 
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    
+    queryset = Trabajo.objects.filter(usuario_id=usuario_id)
+    
     if pk is not None:
-        trabajo = get_object_or_404(Trabajo, pk=pk)
+        trabajo = get_object_or_404(queryset, pk=pk)
         serializer = TrabajoSerializer(trabajo)
         return Response(serializer.data)
     else:
-        trabajos = Trabajo.objects.all()
+        trabajos = queryset
         serializer = TrabajoSerializer(trabajos, many=True)
         return Response(serializer.data)
 
@@ -37,7 +48,16 @@ def get_trabajo_detalle(request, pk):
     """
     Obtiene el detalle completo de un trabajo.
     """
-    trabajo = get_object_or_404(Trabajo, pk=pk)
+    usuario_id = get_usuario_id_from_request(request)
+    
+    if not usuario_id:
+        return Response(
+            {"detail": "Token de acceso requerido"}, 
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    
+    queryset = Trabajo.objects.filter(usuario_id=usuario_id)
+    trabajo = get_object_or_404(queryset, pk=pk)
     serializer = TrabajoSerializer(trabajo)
     data = serializer.data
     

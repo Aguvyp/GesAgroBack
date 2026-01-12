@@ -1,15 +1,25 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 from django.db.models import Sum, Count
 from ..models import Trabajo, Movimiento, Factura
 from django.utils import timezone
+from ..utils import get_usuario_id_from_request
 
 class ReporteTrabajosView(APIView):
     def get(self, request):
+        usuario_id = get_usuario_id_from_request(request)
+        
+        if not usuario_id:
+            return Response(
+                {"detail": "Token de acceso requerido"}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
         now = timezone.now()
         periodo = request.query_params.get('periodo', now.strftime('%Y-%m'))
         
-        trabajos = Trabajo.objects.filter(fecha_inicio__startswith=periodo)
+        trabajos = Trabajo.objects.filter(usuario_id=usuario_id, fecha_inicio__startswith=periodo)
         
         total_trabajos = trabajos.count()
         # Esto es un poco simplificado, en un entorno real usaríamos GroupBy
@@ -39,10 +49,18 @@ class ReporteTrabajosView(APIView):
 
 class ReporteFinancieroView(APIView):
     def get(self, request):
+        usuario_id = get_usuario_id_from_request(request)
+        
+        if not usuario_id:
+            return Response(
+                {"detail": "Token de acceso requerido"}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
         now = timezone.now()
         periodo = request.query_params.get('periodo', now.strftime('%Y-%m'))
         
-        movimientos = Movimiento.objects.filter(fecha__startswith=periodo)
+        movimientos = Movimiento.objects.filter(usuario_id=usuario_id, fecha__startswith=periodo)
         
         ingresos_total = movimientos.filter(es_cobro=True).aggregate(Sum('monto'))['monto__sum'] or 0.0
         gastos_total = movimientos.filter(es_cobro=False).aggregate(Sum('monto'))['monto__sum'] or 0.0
@@ -63,7 +81,7 @@ class ReporteFinancieroView(APIView):
                 "por_categoria": gastos_por_cat
             },
             "balance": ingresos_total - gastos_total,
-            "facturas_pendientes": Factura.objects.filter(estado='Pendiente').count(),
-            "facturas_vencidas": Factura.objects.filter(estado='Pendiente', fecha_vencimiento__lt=now.date()).count()
+            "facturas_pendientes": Factura.objects.filter(usuario_id=usuario_id, estado='Pendiente').count(),
+            "facturas_vencidas": Factura.objects.filter(usuario_id=usuario_id, estado='Pendiente', fecha_vencimiento__lt=now.date()).count()
         })
 
