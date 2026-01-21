@@ -17,7 +17,7 @@ from ..services.whatsapp_validator import (
     validate_trabajo_data, validate_costo_data, validate_campo_data, validate_cliente_data
 )
 from ..models import (
-    Trabajo, Costo, Campo, Cliente, TipoTrabajo
+    Trabajo, Costo, Campo, Cliente, TipoTrabajo, Personal, TrabajoPersonal
 )
 import dateparser
 
@@ -254,7 +254,7 @@ def get_openai_functions() -> List[Dict]:
             "type": "function",
             "function": {
                 "name": "create_campo",
-                "description": "Crea un nuevo campo. Requiere: nombre. Opcional: hectareas, detalles, propio, cliente_id. Si propio=false, cliente_id es requerido. Si propio=true (por defecto), el campo es del usuario y cliente_id debe ser null.",
+                "description": "Crea un nuevo campo. IMPORTANTE: ANTES de crear, SIEMPRE llama primero a get_campos para verificar si ya existe un campo con nombre similar. Si existe, pregunta al usuario si desea actualizar el existente o crear uno nuevo. Requiere: nombre. Opcional: hectareas, detalles, propio, cliente_id. Si propio=false, cliente_id es requerido. Si propio=true (por defecto), el campo es del usuario y cliente_id debe ser null.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -316,7 +316,7 @@ def get_openai_functions() -> List[Dict]:
             "type": "function",
             "function": {
                 "name": "create_cliente",
-                "description": "Crea un nuevo cliente. Requiere: nombre. Opcional: email, telefono, direccion, cuit.",
+                "description": "Crea un nuevo cliente. IMPORTANTE: ANTES de crear, SIEMPRE llama primero a get_clientes para verificar si ya existe un cliente con nombre o CUIT similar. Si existe, pregunta al usuario si desea actualizar el existente o crear uno nuevo. Requiere: nombre. Opcional: email, telefono, direccion, cuit.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -374,6 +374,112 @@ def get_openai_functions() -> List[Dict]:
                     }
                 }
             }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "create_personal",
+                "description": "Crea un nuevo registro de personal. IMPORTANTE: ANTES de crear, SIEMPRE llama primero a get_personal para verificar si ya existe personal con nombre o DNI similar. Si existe, pregunta al usuario si desea actualizar el existente o crear uno nuevo. Si faltan datos opcionales (DNI, teléfono), pregunta al usuario si desea proporcionarlos antes de crear. Requiere: nombre. Opcional pero recomendado: dni, telefono.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "nombre": {"type": "string", "description": "Nombre completo del personal"},
+                        "dni": {"type": "string", "description": "DNI del personal (opcional)"},
+                        "telefono": {"type": "string", "description": "Teléfono del personal (opcional)"}
+                    },
+                    "required": ["nombre"]
+                }
+            }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "update_personal",
+                "description": "Actualiza un registro de personal existente.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "id": {"type": "integer", "description": "ID del personal a actualizar"},
+                        "nombre": {"type": "string"},
+                        "dni": {"type": "string"},
+                        "telefono": {"type": "string"}
+                    },
+                    "required": ["id"]
+                }
+            }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "delete_personal",
+                "description": "Elimina un registro de personal por su ID.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "id": {"type": "integer", "description": "ID del personal a eliminar"}
+                    },
+                    "required": ["id"]
+                }
+            }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "get_personal",
+                "description": "Obtiene lista de personal del usuario.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "limit": {"type": "integer", "description": "Límite de resultados (opcional, por defecto 100)"}
+                    }
+                }
+            }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "assign_personal_to_trabajo",
+                "description": "Asigna personal a un trabajo existente. Requiere: trabajo_id, personal_id. Opcional: hectareas, horas_trabajadas. IMPORTANTE: Usa esta función cuando el usuario quiera 'asignar', 'agregar' o 'añadir' personal a un trabajo que ya existe.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "trabajo_id": {"type": "integer", "description": "ID del trabajo al que se asignará el personal"},
+                        "personal_id": {"type": "integer", "description": "ID del personal a asignar"},
+                        "hectareas": {"type": "number", "description": "Hectáreas trabajadas por este personal (opcional)"},
+                        "horas_trabajadas": {"type": "number", "description": "Horas trabajadas por este personal (opcional)"}
+                    },
+                    "required": ["trabajo_id", "personal_id"]
+                }
+            }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "remove_personal_from_trabajo",
+                "description": "Desasigna/remueve personal de un trabajo. Requiere: trabajo_id, personal_id.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "trabajo_id": {"type": "integer", "description": "ID del trabajo"},
+                        "personal_id": {"type": "integer", "description": "ID del personal a desasignar"}
+                    },
+                    "required": ["trabajo_id", "personal_id"]
+                }
+            }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "get_trabajo_personal",
+                "description": "Obtiene la lista de personal asignado a un trabajo específico.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "trabajo_id": {"type": "integer", "description": "ID del trabajo"}
+                    },
+                    "required": ["trabajo_id"]
+                }
+            }
         }
     ]
 
@@ -394,14 +500,14 @@ def call_function(function_name: str, arguments: Dict, usuario_id: Optional[int]
     
     # Agregar usuario_id a los argumentos de creación
     if usuario_id is not None:
-        if function_name in ['create_trabajo', 'create_costo', 'create_campo', 'create_cliente']:
+        if function_name in ['create_trabajo', 'create_costo', 'create_campo', 'create_cliente', 'create_personal']:
             arguments['usuario_id'] = usuario_id
         
         # Filtrar por usuario en TODAS las operaciones (crear, leer, actualizar, eliminar)
         funciones_con_filtro = [
-            'get_trabajos', 'get_costos', 'get_campos', 'get_clientes',
-            'update_trabajo', 'update_costo', 'update_campo', 'update_cliente',
-            'delete_trabajo', 'delete_costo', 'delete_campo', 'delete_cliente'
+            'get_trabajos', 'get_costos', 'get_campos', 'get_clientes', 'get_personal',
+            'update_trabajo', 'update_costo', 'update_campo', 'update_cliente', 'update_personal',
+            'delete_trabajo', 'delete_costo', 'delete_campo', 'delete_cliente', 'delete_personal'
         ]
         if function_name in funciones_con_filtro:
             arguments['usuario_id'] = usuario_id
@@ -531,26 +637,197 @@ def call_function(function_name: str, arguments: Dict, usuario_id: Optional[int]
                 return {"error": error_msg}
         
         elif function_name == "create_campo":
+            # VERIFICAR DUPLICADOS PRIMERO
+            nombre_campo = arguments.get('nombre', '').strip()
+            if nombre_campo and usuario_id:
+                existing_campo = Campo.objects.filter(
+                    nombre__iexact=nombre_campo,
+                    usuario_id=usuario_id
+                ).first()
+                
+                if existing_campo:
+                    return {
+                        "duplicate_found": True,
+                        "message": f"⚠️ Ya existe un campo llamado '{existing_campo.nombre}' con {existing_campo.hectareas} hectáreas (ID: {existing_campo.id}).\n\n"
+                                  f"¿Qué deseas hacer?\n"
+                                  f"1️⃣ Actualizar el campo existente (responde 'actualizar campo {existing_campo.id}')\n"
+                                  f"2️⃣ Crear uno nuevo de todas formas (responde 'crear campo nuevo {nombre_campo} confirmar')\n"
+                                  f"3️⃣ Cancelar (responde 'cancelar')",
+                        "existing_id": existing_campo.id,
+                        "existing_data": {
+                            "nombre": existing_campo.nombre,
+                            "hectareas": float(existing_campo.hectareas) if existing_campo.hectareas else 0,
+                            "detalles": existing_campo.detalles
+                        }
+                    }
+            
             is_valid, error_msg, validated_data = validate_campo_data(arguments)
             if not is_valid:
                 return {"error": error_msg}
             
             success, error_msg, created_data = create_campo(validated_data)
             if success:
-                return {"success": True, "message": f"Campo creado exitosamente", "data": created_data}
+                return {"success": True, "message": f"✅ Campo '{validated_data.get('nombre')}' creado exitosamente", "data": created_data}
             else:
                 return {"error": error_msg}
         
         elif function_name == "create_cliente":
+            # VERIFICAR DUPLICADOS PRIMERO
+            nombre_cliente = arguments.get('nombre', '').strip()
+            cuit_cliente = arguments.get('cuit', '').strip()
+            
+            if usuario_id and (nombre_cliente or cuit_cliente):
+                existing_cliente = None
+                
+                # Buscar por CUIT primero (más específico)
+                if cuit_cliente:
+                    existing_cliente = Cliente.objects.filter(
+                        cuit=cuit_cliente,
+                        usuario_id=usuario_id
+                    ).first()
+                
+                # Si no se encontró por CUIT, buscar por nombre
+                if not existing_cliente and nombre_cliente:
+                    existing_cliente = Cliente.objects.filter(
+                        nombre__iexact=nombre_cliente,
+                        usuario_id=usuario_id
+                    ).first()
+                
+                if existing_cliente:
+                    return {
+                        "duplicate_found": True,
+                        "message": f"⚠️ Ya existe un cliente llamado '{existing_cliente.nombre}' "
+                                  f"{'con CUIT ' + existing_cliente.cuit if existing_cliente.cuit else ''} (ID: {existing_cliente.id}).\n\n"
+                                  f"Datos actuales:\n"
+                                  f"- Email: {existing_cliente.email or 'No especificado'}\n"
+                                  f"- Teléfono: {existing_cliente.telefono or 'No especificado'}\n"
+                                  f"- Dirección: {existing_cliente.direccion or 'No especificado'}\n\n"
+                                  f"¿Qué deseas hacer?\n"
+                                  f"1️⃣ Actualizar el cliente existente (responde 'actualizar cliente {existing_cliente.id}')\n"
+                                  f"2️⃣ Crear uno nuevo de todas formas (responde 'crear cliente nuevo {nombre_cliente} confirmar')\n"
+                                  f"3️⃣ Cancelar (responde 'cancelar')",
+                        "existing_id": existing_cliente.id,
+                        "existing_data": {
+                            "nombre": existing_cliente.nombre,
+                            "email": existing_cliente.email,
+                            "telefono": existing_cliente.telefono,
+                            "cuit": existing_cliente.cuit
+                        }
+                    }
+            
             is_valid, error_msg, validated_data = validate_cliente_data(arguments)
             if not is_valid:
                 return {"error": error_msg}
             
             success, error_msg, created_data = create_cliente(validated_data)
             if success:
-                return {"success": True, "message": f"Cliente creado exitosamente", "data": created_data}
+                return {"success": True, "message": f"✅ Cliente '{validated_data.get('nombre')}' creado exitosamente", "data": created_data}
             else:
                 return {"error": error_msg}
+        
+        elif function_name == "create_personal":
+            # Validar datos básicos
+            if 'nombre' not in arguments or not arguments['nombre']:
+                return {"error": "El nombre es requerido"}
+            
+            nombre_personal = arguments['nombre'].strip()
+            dni_personal = arguments.get('dni', '').strip()
+            
+            # VERIFICAR DUPLICADOS PRIMERO
+            if usuario_id and (nombre_personal or dni_personal):
+                existing_personal = None
+                
+                # Buscar por DNI primero (más específico)
+                if dni_personal:
+                    existing_personal = Personal.objects.filter(
+                        dni=dni_personal,
+                        usuario_id=usuario_id
+                    ).first()
+                
+                # Si no se encontró por DNI, buscar por nombre
+                if not existing_personal and nombre_personal:
+                    existing_personal = Personal.objects.filter(
+                        nombre__iexact=nombre_personal,
+                        usuario_id=usuario_id
+                    ).first()
+                
+                if existing_personal:
+                    return {
+                        "duplicate_found": True,
+                        "message": f"⚠️ Ya existe un personal llamado '{existing_personal.nombre}' "
+                                  f"{'con DNI ' + existing_personal.dni if existing_personal.dni else ''} (ID: {existing_personal.id}).\n\n"
+                                  f"Datos actuales:\n"
+                                  f"- DNI: {existing_personal.dni or 'No especificado'}\n"
+                                  f"- Teléfono: {existing_personal.telefono or 'No especificado'}\n"
+                                  f"- Superficie trabajada: {existing_personal.superficie_total_ha or 0} ha\n"
+                                  f"- Horas trabajadas: {existing_personal.horas_trabajadas or 0}\n\n"
+                                  f"¿Qué deseas hacer?\n"
+                                  f"1️⃣ Actualizar el personal existente (responde 'actualizar personal {existing_personal.id}')\n"
+                                  f"2️⃣ Crear uno nuevo de todas formas (responde 'crear personal nuevo {nombre_personal} confirmar')\n"
+                                  f"3️⃣ Cancelar (responde 'cancelar')",
+                        "existing_id": existing_personal.id,
+                        "existing_data": {
+                            "nombre": existing_personal.nombre,
+                            "dni": existing_personal.dni,
+                            "telefono": existing_personal.telefono
+                        }
+                    }
+            
+            # SOLICITAR DATOS OPCIONALES SI FALTAN
+            if not dni_personal or not arguments.get('telefono'):
+                missing_fields = []
+                if not dni_personal:
+                    missing_fields.append("DNI")
+                if not arguments.get('telefono'):
+                    missing_fields.append("teléfono")
+                
+                return {
+                    "missing_data": True,
+                    "message": f"ℹ️ Estoy a punto de crear el personal '{nombre_personal}'.\n\n"
+                              f"Datos opcionales faltantes: {', '.join(missing_fields)}\n\n"
+                              f"¿Deseas proporcionarlos ahora para un registro más completo?\n"
+                              f"1️⃣ Sí, proporcionar datos (responde con el DNI y/o teléfono)\n"
+                              f"2️⃣ No, crear sin esos datos (responde 'crear sin datos opcionales')\n"
+                              f"3️⃣ Cancelar (responde 'cancelar')",
+                    "nombre": nombre_personal,
+                    "missing_fields": missing_fields
+                }
+            
+            try:
+                from ..serializers import PersonalSerializer
+                
+                # Preparar datos para crear
+                personal_data = {
+                    'nombre': nombre_personal,
+                    'usuario_id': arguments.get('usuario_id')
+                }
+                
+                # Agregar campos opcionales si existen
+                if dni_personal:
+                    personal_data['dni'] = dni_personal
+                if 'telefono' in arguments and arguments['telefono']:
+                    personal_data['telefono'] = arguments['telefono']
+                
+                serializer = PersonalSerializer(data=personal_data)
+                if serializer.is_valid():
+                    personal = serializer.save()
+                    return {
+                        "success": True,
+                        "message": f"✅ Personal '{personal.nombre}' creado exitosamente"
+                                  f"{' con DNI ' + personal.dni if personal.dni else ''}"
+                                  f"{' y teléfono ' + personal.telefono if personal.telefono else ''}",
+                        "data": {
+                            "id": personal.id,
+                            "nombre": personal.nombre,
+                            "dni": personal.dni,
+                            "telefono": personal.telefono
+                        }
+                    }
+                else:
+                    return {"error": str(serializer.errors)}
+            except Exception as e:
+                logger.error(f"Error creando personal: {str(e)}")
+                return {"error": f"Error creando personal: {str(e)}"}
         
         # Funciones de actualización
         elif function_name == "update_trabajo":
@@ -747,6 +1024,24 @@ def call_function(function_name: str, arguments: Dict, usuario_id: Optional[int]
             except Cliente.DoesNotExist:
                 return {"error": f"Cliente con ID {arguments['id']} no encontrado"}
         
+        elif function_name == "update_personal":
+            queryset = Personal.objects.all()
+            if 'usuario_id' in arguments:
+                queryset = queryset.filter(usuario_id=arguments['usuario_id'])
+            try:
+                personal = queryset.get(id=arguments['id'])
+                from ..serializers import PersonalSerializer
+                
+                update_data = {k: v for k, v in arguments.items() if k not in ['id', 'usuario_id'] and v is not None}
+                serializer = PersonalSerializer(personal, data=update_data, partial=True)
+                if serializer.is_valid():
+                    serializer.save()
+                    return {"success": True, "message": f"Personal '{personal.nombre}' actualizado exitosamente"}
+                else:
+                    return {"error": str(serializer.errors)}
+            except Personal.DoesNotExist:
+                return {"error": f"Personal con ID {arguments['id']} no encontrado"}
+        
         # Funciones de eliminación
         elif function_name == "delete_trabajo":
             queryset = Trabajo.objects.all()
@@ -791,6 +1086,18 @@ def call_function(function_name: str, arguments: Dict, usuario_id: Optional[int]
                 return {"success": True, "message": f"Cliente {arguments['id']} eliminado exitosamente"}
             except Cliente.DoesNotExist:
                 return {"error": f"Cliente con ID {arguments['id']} no encontrado"}
+        
+        elif function_name == "delete_personal":
+            queryset = Personal.objects.all()
+            if 'usuario_id' in arguments:
+                queryset = queryset.filter(usuario_id=arguments['usuario_id'])
+            try:
+                personal = queryset.get(id=arguments['id'])
+                nombre = personal.nombre
+                personal.delete()
+                return {"success": True, "message": f"Personal '{nombre}' eliminado exitosamente"}
+            except Personal.DoesNotExist:
+                return {"error": f"Personal con ID {arguments['id']} no encontrado"}
         
         # Funciones de consulta
         elif function_name == "get_trabajos":
@@ -920,6 +1227,154 @@ def call_function(function_name: str, arguments: Dict, usuario_id: Optional[int]
                 data.append(item_clean)
             return {"success": True, "data": data, "count": len(data)}
         
+        elif function_name == "get_personal":
+            queryset = Personal.objects.all()
+            
+            # Filtrar por usuario_id (siempre requerido)
+            if usuario_id:
+                queryset = queryset.filter(usuario_id=usuario_id)
+            elif 'usuario_id' in arguments:
+                queryset = queryset.filter(usuario_id=arguments['usuario_id'])
+            else:
+                return {"error": "usuario_id es requerido para obtener personal"}
+            
+            limit = arguments.get('limit', 100)
+            personal_list = queryset[:limit]
+            
+            from ..serializers import PersonalSerializer
+            serializer = PersonalSerializer(personal_list, many=True)
+            # Convertir Decimal a float para serialización JSON
+            data = []
+            for item in serializer.data:
+                item_clean = {}
+                for key, value in item.items():
+                    if isinstance(value, Decimal):
+                        item_clean[key] = float(value)
+                    elif isinstance(value, date):
+                        item_clean[key] = value.isoformat()
+                data.append(item_clean)
+            return {"success": True, "data": data, "count": len(data)}
+        
+        # Funciones de asignación de personal a trabajos
+        elif function_name == "assign_personal_to_trabajo":
+            trabajo_id = arguments.get('trabajo_id')
+            personal_id = arguments.get('personal_id')
+            
+            if not trabajo_id or not personal_id:
+                return {"error": "Se requieren trabajo_id y personal_id"}
+            
+            try:
+                # Verificar que el trabajo existe y pertenece al usuario
+                trabajo = Trabajo.objects.filter(id=trabajo_id, usuario_id=usuario_id).first()
+                if not trabajo:
+                    return {"error": f"Trabajo con ID {trabajo_id} no encontrado"}
+                
+                # Verificar que el personal existe y pertenece al usuario
+                personal = Personal.objects.filter(id=personal_id, usuario_id=usuario_id).first()
+                if not personal:
+                    return {"error": f"Personal con ID {personal_id} no encontrado"}
+                
+                # Verificar si ya está asignado
+                existing = TrabajoPersonal.objects.filter(trabajo=trabajo, personal=personal).first()
+                if existing:
+                    return {
+                        "already_assigned": True,
+                        "message": f"⚠️ El personal '{personal.nombre}' ya está asignado a este trabajo.\n"
+                                  f"Hectáreas actuales: {existing.hectareas or 0}\n"
+                                  f"Horas actuales: {existing.horas_trabajadas or 0}\n\n"
+                                  f"¿Deseas actualizar las hectáreas u horas trabajadas?"
+                    }
+                
+                # Crear la asignación
+                asignacion_data = {
+                    'trabajo': trabajo,
+                    'personal': personal,
+                    'hectareas': arguments.get('hectareas', 0),
+                    'horas_trabajadas': arguments.get('horas_trabajadas', 0)
+                }
+                
+                asignacion = TrabajoPersonal.objects.create(**asignacion_data)
+                
+                return {
+                    "success": True,
+                    "message": f"✅ Personal '{personal.nombre}' asignado exitosamente al trabajo de {trabajo.id_tipo_trabajo.nombre if trabajo.id_tipo_trabajo else 'trabajo'} en {trabajo.campo.nombre if trabajo.campo else 'campo'}",
+                    "data": {
+                        "trabajo_id": trabajo.id,
+                        "personal_id": personal.id,
+                        "personal_nombre": personal.nombre,
+                        "hectareas": float(asignacion.hectareas) if asignacion.hectareas else 0,
+                        "horas_trabajadas": float(asignacion.horas_trabajadas) if asignacion.horas_trabajadas else 0
+                    }
+                }
+            except Exception as e:
+                logger.error(f"Error asignando personal a trabajo: {str(e)}")
+                return {"error": f"Error asignando personal: {str(e)}"}
+        
+        elif function_name == "remove_personal_from_trabajo":
+            trabajo_id = arguments.get('trabajo_id')
+            personal_id = arguments.get('personal_id')
+            
+            if not trabajo_id or not personal_id:
+                return {"error": "Se requieren trabajo_id y personal_id"}
+            
+            try:
+                # Buscar la asignación
+                asignacion = TrabajoPersonal.objects.filter(
+                    trabajo_id=trabajo_id,
+                    personal_id=personal_id,
+                    trabajo__usuario_id=usuario_id
+                ).first()
+                
+                if not asignacion:
+                    return {"error": f"No se encontró asignación del personal {personal_id} al trabajo {trabajo_id}"}
+                
+                personal_nombre = asignacion.personal.nombre
+                asignacion.delete()
+                
+                return {
+                    "success": True,
+                    "message": f"✅ Personal '{personal_nombre}' desasignado exitosamente del trabajo"
+                }
+            except Exception as e:
+                logger.error(f"Error desasignando personal: {str(e)}")
+                return {"error": f"Error desasignando personal: {str(e)}"}
+        
+        elif function_name == "get_trabajo_personal":
+            trabajo_id = arguments.get('trabajo_id')
+            
+            if not trabajo_id:
+                return {"error": "Se requiere trabajo_id"}
+            
+            try:
+                # Verificar que el trabajo existe y pertenece al usuario
+                trabajo = Trabajo.objects.filter(id=trabajo_id, usuario_id=usuario_id).first()
+                if not trabajo:
+                    return {"error": f"Trabajo con ID {trabajo_id} no encontrado"}
+                
+                # Obtener personal asignado
+                asignaciones = TrabajoPersonal.objects.filter(trabajo=trabajo).select_related('personal')
+                
+                data = []
+                for asig in asignaciones:
+                    data.append({
+                        "personal_id": asig.personal.id,
+                        "nombre": asig.personal.nombre,
+                        "dni": asig.personal.dni,
+                        "telefono": asig.personal.telefono,
+                        "hectareas": float(asig.hectareas) if asig.hectareas else 0,
+                        "horas_trabajadas": float(asig.horas_trabajadas) if asig.horas_trabajadas else 0
+                    })
+                
+                return {
+                    "success": True,
+                    "data": data,
+                    "count": len(data),
+                    "message": f"Personal asignado al trabajo: {len(data)} persona(s)"
+                }
+            except Exception as e:
+                logger.error(f"Error obteniendo personal del trabajo: {str(e)}")
+                return {"error": f"Error obteniendo personal: {str(e)}"}
+        
         else:
             return {"error": f"Función '{function_name}' no implementada"}
     
@@ -954,7 +1409,56 @@ def process_with_openai(message: str, usuario_id: Optional[int] = None) -> Tuple
             messages=[
                 {
                     "role": "system",
-                    "content": "Eres un asistente que ayuda a gestionar una empresa agrícola. Puedes crear, leer, actualizar y eliminar registros de trabajos, costos, campos y clientes. Responde siempre en español de forma clara y concisa.\n\nREGLAS CRÍTICAS:\n- SIEMPRE crea los registros que el usuario solicite, SIN IMPORTAR LA FECHA (pasada, presente o futura).\n- Las fechas futuras están PERMITIDAS y son NORMALES. Los trabajos con fechas futuras se crean con estado 'Pendiente'.\n- NUNCA rechaces crear un registro por la fecha. Si el usuario pide crear un trabajo, créalo sin importar la fecha.\n- El cultivo es opcional. Solo inclúyelo si se menciona explícitamente en el mensaje del usuario.\n- IMPORTANTE: Si el usuario usa palabras como 'completar', 'marcar como completado', 'terminar', 'finalizar', 'actualizar estado a completado', etc., NO crees un nuevo registro. En su lugar, usa update_trabajo para actualizar el trabajo existente que coincida con los criterios (campo, tipo_trabajo, fecha_inicio, y opcionalmente cultivo).\n- Si el mensaje menciona 'completar' o 'marcar como completado' y proporciona campo + tipo_trabajo + fecha (y opcionalmente cultivo), busca el trabajo existente y actualiza su estado a 'Completado'.\n- Tu función es CREAR los registros que el usuario solicite, no validar si las fechas tienen sentido.\n\nCAMPOS Y CLIENTES:\n- Al crear un campo, si el usuario menciona que el campo pertenece a un cliente o que 'no es propio', establece propio=false y cliente_id con el ID del cliente mencionado.\n- Si el usuario quiere crear un campo no propio pero no especifica el cliente, primero usa get_clientes para listar los clientes disponibles y pregunta al usuario cuál cliente desea asignar.\n- Si el usuario no menciona nada sobre si el campo es propio o de un cliente, asume que es propio (propio=true, cliente_id=null)."
+                    "content": """Eres un asistente que ayuda a gestionar una empresa agrícola. Puedes crear, leer, actualizar y eliminar registros de trabajos, costos, campos, clientes y personal. Responde siempre en español de forma clara y concisa.
+
+REGLAS CRÍTICAS DE VERIFICACIÓN Y CONFIRMACIÓN:
+
+1. ANTES DE CREAR O ACTUALIZAR:
+   - SIEMPRE verifica primero si ya existe un registro similar usando las funciones get_* correspondientes
+   - Si encuentras un registro similar, pregunta al usuario si desea:
+     a) Actualizar el registro existente
+     b) Crear uno nuevo de todas formas
+     c) Cancelar la operación
+   
+2. DATOS FALTANTES:
+   - Si faltan datos REQUERIDOS, pregunta al usuario por ellos ANTES de ejecutar la acción
+   - Si tienes dudas sobre qué acción realizar, pregunta al usuario para confirmar
+   - Nunca asumas datos que no fueron proporcionados explícitamente
+   
+3. VERIFICACIÓN DE DUPLICADOS:
+   - Para CAMPOS: Verifica por nombre similar
+   - Para CLIENTES: Verifica por nombre o CUIT
+   - Para PERSONAL: Verifica por nombre o DNI
+   - Para TRABAJOS: Verifica por campo + tipo_trabajo + fecha_inicio
+   - Para COSTOS: Verifica por destinatario + monto + fecha (si son muy similares)
+
+4. EJEMPLOS DE FLUJO CORRECTO:
+   
+   Usuario: "Crear campo La Esperanza"
+   Asistente: [Primero llama get_campos para verificar]
+   - Si NO existe: Procede a crear
+   - Si existe: "Ya existe un campo llamado 'La Esperanza' con 100 hectáreas. ¿Deseas actualizar ese campo o crear uno nuevo?"
+   
+   Usuario: "Agregar personal Juan Pérez"
+   Asistente: [Primero llama get_personal para verificar]
+   - Si NO existe: "¿Podrías proporcionarme el DNI y teléfono de Juan Pérez? (opcional pero recomendado)"
+   - Si existe: "Ya existe un personal llamado 'Juan Pérez' con DNI 12345678. ¿Deseas actualizar sus datos o crear un nuevo registro?"
+
+REGLAS DE FECHAS Y TRABAJOS:
+
+- SIEMPRE crea los registros que el usuario solicite, SIN IMPORTAR LA FECHA (pasada, presente o futura)
+- Las fechas futuras están PERMITIDAS y son NORMALES. Los trabajos con fechas futuras se crean con estado 'Pendiente'
+- NUNCA rechaces crear un registro por la fecha
+- El cultivo es opcional. Solo inclúyelo si se menciona explícitamente
+- Si el usuario usa palabras como 'completar', 'marcar como completado', 'terminar', 'finalizar', NO crees un nuevo registro. Usa update_trabajo para actualizar el existente
+
+CAMPOS Y CLIENTES:
+
+- Al crear un campo, si el usuario menciona que pertenece a un cliente o que 'no es propio', establece propio=false y cliente_id
+- Si el usuario quiere crear un campo no propio pero no especifica el cliente, primero usa get_clientes para listar los clientes y pregunta cuál asignar
+- Si no se menciona nada sobre propiedad, asume que es propio (propio=true, cliente_id=null)
+
+RESUMEN: Sé proactivo en verificar duplicados y solicitar datos faltantes. Siempre confirma antes de crear si encuentras registros similares."""
                 },
                 {
                     "role": "user",
