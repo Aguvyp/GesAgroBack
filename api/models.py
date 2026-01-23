@@ -34,6 +34,8 @@ class Usuario(AbstractBaseUser):
     
     # Mapear is_active a activo (que existe en la BD)
     is_active = models.BooleanField(default=True, db_column='activo', null=True, blank=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
     
     # Sobrescribir last_login de AbstractBaseUser y mapearlo a ultimo_acceso que existe en la BD
     last_login = models.DateTimeField(null=True, blank=True, db_column='ultimo_acceso')
