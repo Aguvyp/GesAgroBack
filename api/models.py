@@ -17,7 +17,7 @@ class UsuarioManager(BaseUserManager):
         extra_fields.setdefault('is_active', True)
         return self.create_user(email, password, **extra_fields)
 
-class Usuario(AbstractBaseUser):
+class Usuario(AbstractBaseUser, PermissionsMixin):
     ROLES = (
         ('Administrador', 'Administrador'),
         ('Contable', 'Contable'),
