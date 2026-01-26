@@ -18,26 +18,29 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
-    dni = serializers.CharField(required=True)
-    telefono = serializers.CharField(required=False)
+    dni = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    telefono = serializers.CharField(required=False, allow_blank=True)
+    nombre = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = Usuario
         fields = ('nombre', 'email', 'password', 'dni', 'telefono')
 
     def create(self, validated_data):
-        dni = validated_data.pop('dni')
+        dni = validated_data.pop('dni', None)
         telefono = validated_data.get('telefono', '')
+        nombre = validated_data.get('nombre', '')
+        
         user = Usuario.objects.create_user(
             email=validated_data['email'],
-            nombre=validated_data['nombre'],
+            nombre=nombre,
             password=validated_data['password']
         )
         Personal.objects.create(
             nombre=user.nombre,
             dni=dni,
             telefono=telefono,
-            usuario=user
+            usuario_id=user.id
         )
         return user
 
