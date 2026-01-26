@@ -44,6 +44,8 @@ def get_campos_cliente(request, pk=None):
     else:
         cliente_id = request.query_params.get('cliente_id')
         if cliente_id:
+            # Limpiar posible slash al final si viene en la query string
+            cliente_id = cliente_id.rstrip('/')
             queryset = queryset.filter(cliente_id=cliente_id)
         serializer = CampoClienteSerializer(queryset, many=True)
         return Response(serializer.data)
