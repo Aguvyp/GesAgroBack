@@ -21,25 +21,36 @@ class RegisterSerializer(serializers.ModelSerializer):
     dni = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     telefono = serializers.CharField(required=False, allow_blank=True)
     nombre = serializers.CharField(required=False, allow_blank=True)
+    rol = serializers.CharField(required=False, default='Operario')
+    is_staff = serializers.BooleanField(required=False, default=False)
+    is_superuser = serializers.BooleanField(required=False, default=False)
 
     class Meta:
         model = Usuario
-        fields = ('nombre', 'email', 'password', 'dni', 'telefono')
+        fields = ('nombre', 'email', 'password', 'dni', 'telefono', 'rol', 'is_staff', 'is_superuser')
 
     def create(self, validated_data):
         dni = validated_data.pop('dni', None)
-        telefono = validated_data.get('telefono', '')
-        nombre = validated_data.get('nombre', '')
+        
+        # Preparar campos extra para el usuario
+        extra_fields = {
+            'nombre': validated_data.get('nombre', ''),
+            'telefono': validated_data.get('telefono', ''),
+            'rol': validated_data.get('rol', 'Operario'),
+            'is_staff': validated_data.get('is_staff', False),
+            'is_superuser': validated_data.get('is_superuser', False),
+        }
         
         user = Usuario.objects.create_user(
             email=validated_data['email'],
-            nombre=nombre,
-            password=validated_data['password']
+            password=validated_data['password'],
+            **extra_fields
         )
+        
         Personal.objects.create(
             nombre=user.nombre,
             dni=dni,
-            telefono=telefono,
+            telefono=user.telefono,
             usuario_id=user.id
         )
         return user
@@ -117,7 +128,39 @@ class TrabajoPersonalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TrabajoPersonal
-        fields = ('id', 'nombre', 'dni', 'rol', 'ha')
+        fields = ('id', 'nombre', 'dni', 'rol', 'ha', 'hectareas', 'horas_trabajadas', 'fecha', 'hora_inicio', 'hora_fin')
+
+class RegistrarHorasSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrabajoPersonal
+        fields = ('trabajo', 'personal', 'hectareas', 'horas_trabajadas', 'fecha', 'hora_inicio', 'hora_fin')
+
+    def validate(self, data):
+        hora_inicio = data.get('hora_inicio')
+        hora_fin = data.get('hora_fin')
+        
+        # Calcular horas automáticamente si se pasan inicio y fin
+        if hora_inicio and hora_fin:
+            from datetime import datetime
+            # Crear datetimes arbitrarios para restar
+            dummy_date = datetime(2000, 1, 1)
+            dt_inicio = datetime.combine(dummy_date, hora_inicio)
+            dt_fin = datetime.combine(dummy_date, hora_fin)
+            
+            # Si el fin es menor que el inicio, asumimos que cruzó la medianoche
+            if dt_fin < dt_inicio:
+                from datetime import timedelta
+                dt_fin += timedelta(days=1)
+                
+            diff = dt_fin - dt_inicio
+            horas = diff.total_seconds() / 3600
+            data['horas_trabajadas'] = round(horas, 2)
+        elif 'horas_trabajadas' not in data:
+            # Si no se calculan y no se pasan, default a 0
+            data['horas_trabajadas'] = 0
+            
+        return data
+
 
 class TrabajoSerializer(serializers.ModelSerializer):
     tipo = serializers.ReadOnlyField(source='id_tipo_trabajo.trabajo')

@@ -208,12 +208,17 @@ class TrabajoPersonal(models.Model):
     personal = models.ForeignKey(Personal, on_delete=models.CASCADE, null=True, blank=True)
     hectareas = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
     horas_trabajadas = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+    fecha = models.DateField(null=True, blank=True)
+    hora_inicio = models.TimeField(null=True, blank=True)
+    hora_fin = models.TimeField(null=True, blank=True)
+    usuario_id = models.IntegerField(null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = 'trabajo_personal'
-        unique_together = ('trabajo', 'personal')
+        # unique_together eliminado para permitir múltiples registros por persona en un trabajo
+
 
 
 class TrabajoMaquina(models.Model):

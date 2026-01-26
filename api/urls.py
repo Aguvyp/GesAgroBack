@@ -13,7 +13,12 @@ from .controllers.maquinas_controller import MaquinaCreateAPIView, MaquinaUpdate
 from .apis.personal_api import get_personal, validate_dni
 from .controllers.personal_controller import PersonalCreateAPIView, PersonalUpdateAPIView, PersonalDestroyAPIView
 from .apis.trabajos_api import get_trabajos, get_trabajo_detalle
-from .controllers.trabajos_controller import TrabajoCreateAPIView, TrabajoUpdateAPIView, TrabajoDestroyAPIView
+from .controllers.trabajos_controller import (
+    TrabajoCreateAPIView, TrabajoUpdateAPIView, 
+    TrabajoDestroyAPIView, RegistrarHorasView
+)
+
+
 from .apis.tipo_trabajo_api import get_tipo_trabajo
 from .controllers.tipo_trabajo_controller import TipoTrabajoCreateAPIView, TipoTrabajoUpdateAPIView, TipoTrabajoDestroyAPIView
 from .apis.costos_api import get_costos, get_costos_pagados, get_costos_pendientes
@@ -108,6 +113,7 @@ urlpatterns = [
 
     # Trabajos
     path('trabajos/create/', TrabajoCreateAPIView.as_view(), name='trabajo-create'),
+    path('trabajos/registrar-horas/', RegistrarHorasView.as_view(), name='trabajo-registrar-horas'),
     path('trabajos/detalle/<int:pk>/', get_trabajo_detalle, name='trabajo-full-detail'),
     path('trabajos/', get_trabajos, name='trabajo-list'),
     path('trabajos/<int:pk>/', get_trabajos, name='trabajo-detail'),
