@@ -12,9 +12,16 @@ class UsuarioManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
-        # No usamos is_staff ni is_superuser porque no existen en la BD
         extra_fields.setdefault('rol', 'Administrador')
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
         return self.create_user(email, password, **extra_fields)
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
@@ -52,8 +59,8 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 class AuthToken(models.Model):
-    access_token = models.CharField(max_length=255, unique=True, db_index=True)
-    usuario_id = models.IntegerField(db_index=True)
+    access_token = models.CharField(max_length=255, unique=True)
+    usuario_id = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
@@ -87,7 +94,7 @@ class Campo(models.Model):
     longitud = models.DecimalField(max_digits=11, decimal_places=8, null=True, blank=True)
     detalles = models.TextField(null=True, blank=True)
     usuario_id = models.IntegerField(null=True, blank=True, db_index=True)
-    propio = models.BooleanField(default=True, null=True, blank=True)
+    propio = models.BooleanField(default=False, null=True, blank=True)
     cliente_id = models.IntegerField(null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

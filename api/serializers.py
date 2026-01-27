@@ -128,7 +128,7 @@ class TrabajoPersonalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TrabajoPersonal
-        fields = ('id', 'nombre', 'dni', 'rol', 'ha', 'hectareas', 'horas_trabajadas', 'fecha', 'hora_inicio', 'hora_fin')
+        fields = ('id', 'nombre', 'dni', 'rol', 'hectareas', 'horas_trabajadas', 'fecha', 'hora_inicio', 'hora_fin')
 
 class RegistrarHorasSerializer(serializers.ModelSerializer):
     class Meta:
@@ -196,7 +196,7 @@ class TrabajoSerializer(serializers.ModelSerializer):
                 TrabajoPersonal.objects.create(
                     trabajo=trabajo,
                     personal_id=item['id'],
-                    ha=item['ha']
+                    hectareas=item.get('ha', 0)
                 )
         elif id_personal:
             for p_id in id_personal:
@@ -220,7 +220,7 @@ class TrabajoSerializer(serializers.ModelSerializer):
                 TrabajoPersonal.objects.create(
                     trabajo=instance,
                     personal_id=item['id'],
-                    ha=item['ha']
+                    hectareas=item.get('ha', 0)
                 )
         elif id_personal is not None:
             TrabajoPersonal.objects.filter(trabajo=instance).delete()
