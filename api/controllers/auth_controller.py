@@ -55,7 +55,8 @@ class LoginView(APIView):
                         "role": user.rol,
                         "user_id": user.id,
                         "personal_id": personal_id,
-                        "usuario_id": user.id
+                        "usuario_id": user.id,
+                        "nombre": user.nombre
                     })
                 else:
                     return Response({"detail": "Credenciales inválidas"}, status=status.HTTP_401_UNAUTHORIZED)
