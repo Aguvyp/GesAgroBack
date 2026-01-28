@@ -65,7 +65,10 @@ def get_weather_forecast(request):
     lon = request.query_params.get('lon')
 
     if not lat or not lon:
-        return Response({"error": "Se requieren los parámetros lat y lon."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({
+            "error": "Se requieren los parámetros lat y lon.",
+            "recibido": list(request.query_params.keys())
+        }, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         lat = float(lat)

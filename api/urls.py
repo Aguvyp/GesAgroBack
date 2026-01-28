@@ -60,7 +60,7 @@ urlpatterns = [
     # Clima
     path('clima/pronostico/', get_weather_forecast, name='weather-forecast'),
     path('clima/pronostico', get_weather_forecast),
-    path('clima/test/', lambda r: Response({"status": "ok"}), name='weather-test'),
+    path('clima/test/', lambda r: Response({"status": "ok", "message": "Server is reaching the weather API routing"}), name='weather-test'),
 
     # Swagger
     path('schema/', SpectacularAPIView.as_view(), name='schema'),
