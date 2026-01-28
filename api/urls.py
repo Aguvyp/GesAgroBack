@@ -53,6 +53,7 @@ from .apis.dashboard_api import (
 from .apis.reportes_api import ReporteTrabajosView, ReporteFinancieroView
 from .apis.mobile_api import MobileSyncView
 from .apis.whatsapp_api import whatsapp_webhook
+from .apis.weather_api import get_weather_forecast
 
 urlpatterns = [
     # Swagger
@@ -206,4 +207,7 @@ urlpatterns = [
 
     # WhatsApp Webhook
     path('whatsapp/webhook/', whatsapp_webhook, name='whatsapp-webhook'),
+
+    # Clima
+    path('clima/pronostico/', get_weather_forecast, name='weather-forecast'),
 ]
