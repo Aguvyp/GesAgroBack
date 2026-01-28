@@ -56,6 +56,9 @@ from .apis.whatsapp_api import whatsapp_webhook
 from .apis.weather_api import get_weather_forecast
 
 urlpatterns = [
+    # Clima
+    path('clima/pronostico/', get_weather_forecast, name='weather-forecast'),
+
     # Swagger
     path('schema/', SpectacularAPIView.as_view(), name='schema'),
     path('schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
@@ -207,7 +210,4 @@ urlpatterns = [
 
     # WhatsApp Webhook
     path('whatsapp/webhook/', whatsapp_webhook, name='whatsapp-webhook'),
-
-    # Clima
-    path('clima/pronostico/', get_weather_forecast, name='weather-forecast'),
 ]

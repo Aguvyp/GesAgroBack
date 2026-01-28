@@ -22,4 +22,4 @@ urlpatterns = [
     path('api/', include('api.urls')),
 ]
 
-# Force reload
+# Force reload 
