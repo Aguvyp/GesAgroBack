@@ -1,4 +1,5 @@
 from django.urls import path
+from rest_framework.response import Response
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from .controllers.auth_controller import RegisterView, LoginView, UpdatePasswordView, TestView, HealthCheckView, LogoutView
@@ -57,8 +58,9 @@ from .apis.weather_api import get_weather_forecast
 
 urlpatterns = [
     # Clima
-    path('clima/pronostico', get_weather_forecast, name='weather-forecast'),
-    path('clima/pronostico/', get_weather_forecast, name='weather-forecast-slash'),
+    path('clima/pronostico/', get_weather_forecast, name='weather-forecast'),
+    path('clima/pronostico', get_weather_forecast),
+    path('clima/test/', lambda r: Response({"status": "ok"}), name='weather-test'),
 
     # Swagger
     path('schema/', SpectacularAPIView.as_view(), name='schema'),

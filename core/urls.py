@@ -21,7 +21,6 @@ from api.apis.weather_api import get_weather_forecast
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/clima/pronostico', get_weather_forecast, name='core-weather-forecast'),
     path('api/', include('api.urls')),
 ]
 
