@@ -57,7 +57,8 @@ from .apis.weather_api import get_weather_forecast
 
 urlpatterns = [
     # Clima
-    path('clima/pronostico/', get_weather_forecast, name='weather-forecast'),
+    path('clima/pronostico', get_weather_forecast, name='weather-forecast'),
+    path('clima/pronostico/', get_weather_forecast, name='weather-forecast-slash'),
 
     # Swagger
     path('schema/', SpectacularAPIView.as_view(), name='schema'),

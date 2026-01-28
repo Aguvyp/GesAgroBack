@@ -2,7 +2,7 @@ import requests
 from datetime import datetime
 from django.core.cache import cache
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -59,7 +59,7 @@ def get_dia_nombre(fecha_str):
         return ""
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def get_weather_forecast(request):
     lat = request.query_params.get('lat')
     lon = request.query_params.get('lon')
@@ -88,7 +88,7 @@ def get_weather_forecast(request):
         response.raise_for_status()
         data = response.json()
     except Exception as e:
-        return Response({"error": f"Error al conectar con Open-Meteo: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": f"Error al conectar con Open-Meteo: {str(e)}"})
 
     # Current data
     current = data.get('current', {})

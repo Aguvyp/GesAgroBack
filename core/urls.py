@@ -17,8 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from api.apis.weather_api import get_weather_forecast
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/clima/pronostico', get_weather_forecast, name='core-weather-forecast'),
     path('api/', include('api.urls')),
 ]
 
