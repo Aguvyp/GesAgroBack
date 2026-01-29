@@ -83,8 +83,8 @@ def get_weather_forecast(request):
     if cached_data:
         return Response(cached_data)
 
-    # API Call
-    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto"
+    # API Call - Agregamos wind_speed_10m_max y precipitation_probability_max
+    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,wind_speed_10m_max,precipitation_probability_max&timezone=auto"
     
     try:
         response = requests.get(url, timeout=10)
@@ -96,14 +96,14 @@ def get_weather_forecast(request):
     # Current data
     current = data.get('current', {})
     weather_code = current.get('weather_code', 0)
-    wind_speed = current.get('wind_speed_10m', 0)
+    wind_speed_actual = current.get('wind_speed_10m', 0)
     
     actual = {
         "temperatura": current.get('temperature_2m'),
         "humedad": current.get('relative_humidity_2m'),
-        "viento": wind_speed,
+        "viento": wind_speed_actual,
         "descripcion": get_weather_description(weather_code),
-        "alerta_pulverizacion": wind_speed > 15
+        "alerta_pulverizacion": wind_speed_actual > 15
     }
 
     # Forecast data (next 5 days)
@@ -112,16 +112,22 @@ def get_weather_forecast(request):
     max_temps = daily.get('temperature_2m_max', [])
     min_temps = daily.get('temperature_2m_min', [])
     weather_codes = daily.get('weather_code', [])
+    wind_speeds_max = daily.get('wind_speed_10m_max', [])
+    precip_prob = daily.get('precipitation_probability_max', [])
 
     pronostico = []
     for i in range(min(5, len(times))):
         fecha_str = times[i]
+        viento_max = wind_speeds_max[i]
         pronostico.append({
             "dia": fecha_str,
             "dia_nombre": get_dia_nombre(fecha_str),
             "max": max_temps[i],
             "min": min_temps[i],
-            "clima": get_weather_description(weather_codes[i])
+            "viento_max": viento_max,
+            "probabilidad_precipitacion": precip_prob[i],
+            "clima": get_weather_description(weather_codes[i]),
+            "alerta_pulverizacion": viento_max > 15
         })
 
     result = {
