@@ -118,6 +118,9 @@ class TrabajoPersonalSerializer(serializers.ModelSerializer):
     # rol obtenido de otra manera ya que no hay relación directa usuario en Personal
     rol = serializers.SerializerMethodField()
     
+    id_personal = serializers.ReadOnlyField(source='personal.id')
+    id_trabajo_personal = serializers.ReadOnlyField(source='id')
+
     def get_rol(self, obj):
         # Intentar obtener el rol buscando el usuario por nombre
         try:
@@ -128,7 +131,7 @@ class TrabajoPersonalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TrabajoPersonal
-        fields = ('id', 'nombre', 'dni', 'rol', 'hectareas', 'horas_trabajadas', 'fecha', 'hora_inicio', 'hora_fin')
+        fields = ('id', 'id_trabajo_personal', 'id_personal', 'nombre', 'dni', 'rol', 'hectareas', 'horas_trabajadas', 'fecha', 'hora_inicio', 'hora_fin')
 
 class RegistrarHorasSerializer(serializers.ModelSerializer):
     class Meta:
