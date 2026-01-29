@@ -88,3 +88,69 @@ def get_trabajo_detalle(request, pk):
     if 'personal_detail' in data:
         data['personal'] = data.pop('personal_detail')
     return Response(data)
+
+from ..models import TrabajoPersonal
+from ..serializers import TrabajoPersonalSerializer
+
+@extend_schema(
+    operation_id='update_trabajo_personal',
+    summary='Actualizar registro de personal en trabajo',
+    description='Actualiza horas o hectáreas de un operario, validando que el total no supere las hectáreas del campo',
+    request=TrabajoPersonalSerializer,
+    responses={200: TrabajoPersonalSerializer, 400: 'Bad Request'}
+)
+@api_view(['PUT', 'PATCH'])
+def update_trabajo_personal(request, pk):
+    usuario_id = get_usuario_id_from_request(request)
+    if not usuario_id:
+        return Response({"detail": "Token requerido"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    # Obtenemos el registro asegurando que pertenece al usuario
+    # Como TrabajoPersonal no tiene usuario_id directo en algunos modelos viejos, filtramos por Trabajo->usuario_id
+    # Pero segun tu modelo TrabajoPersonal SI tiene usuario_id. Usémoslo.
+    registro = get_object_or_404(TrabajoPersonal, pk=pk, usuario_id=usuario_id)
+    
+    serializer = TrabajoPersonalSerializer(registro, data=request.data, partial=True)
+    
+    if serializer.is_valid():
+        # --- VALIDACIÓN DE HECTÁREAS ---
+        new_hectareas = serializer.validated_data.get('hectareas')
+        
+        # Solo validamos si se están intentando modificar las hectáreas
+        if new_hectareas is not None:
+            trabajo = registro.trabajo
+            
+            if trabajo and trabajo.campo and trabajo.campo.hectareas:
+                limit_hectareas = float(trabajo.campo.hectareas)
+                
+                # Sumamos lo que llevan los DEMÁS registrados en este trabajo
+                current_total = trabajo.trabajopersonal_set.exclude(pk=pk).aggregate(sum=Sum('hectareas'))['sum'] or 0.0
+                
+                # Sumamos lo que se quiere guardar ahora
+                total_maybe = float(current_total) + float(new_hectareas)
+                
+                if total_maybe > limit_hectareas:
+                     return Response({
+                        "error": f"No puedes trabajar mas hectareas totales (Actual intentado: {total_maybe}) que las que el campo tiene registradas ({limit_hectareas})"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Guardar si pasó la validación
+        serializer.save()
+        return Response(serializer.data)
+        
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@extend_schema(
+    operation_id='delete_trabajo_personal',
+    summary='Eliminar registro de personal',
+    responses={204: 'No Content'}
+)
+@api_view(['DELETE'])
+def delete_trabajo_personal(request, pk):
+    usuario_id = get_usuario_id_from_request(request)
+    if not usuario_id:
+        return Response({"detail": "Token requerido"}, status=status.HTTP_401_UNAUTHORIZED)
+        
+    registro = get_object_or_404(TrabajoPersonal, pk=pk, usuario_id=usuario_id)
+    registro.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)

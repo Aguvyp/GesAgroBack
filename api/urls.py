@@ -13,13 +13,13 @@ from .apis.maquinas_api import get_maquinas
 from .controllers.maquinas_controller import MaquinaCreateAPIView, MaquinaUpdateAPIView, MaquinaDestroyAPIView
 from .apis.personal_api import get_personal, validate_dni
 from .controllers.personal_controller import PersonalCreateAPIView, PersonalUpdateAPIView, PersonalDestroyAPIView
-from .apis.trabajos_api import get_trabajos, get_trabajo_detalle
+from .apis.trabajos_api import (
+    get_trabajos, get_trabajo_detalle,
+    update_trabajo_personal, delete_trabajo_personal
+)
 from .controllers.trabajos_controller import (
     TrabajoCreateAPIView, TrabajoUpdateAPIView, 
     TrabajoDestroyAPIView, RegistrarHorasView
-)
-from .controllers.trabajo_personal_controller import (
-    TrabajoPersonalDetailView, TrabajoPersonalUpdateView, TrabajoPersonalDestroyView
 )
 
 
@@ -131,9 +131,9 @@ urlpatterns = [
     path('trabajos/<int:pk>/delete/', TrabajoDestroyAPIView.as_view(), name='trabajo-delete'),
 
     # Trabajo Personal (Horas individuales)
-    path('trabajos-personal/<int:pk>/', TrabajoPersonalDetailView.as_view(), name='trabajo-personal-detail'),
-    path('trabajos-personal/<int:pk>/update/', TrabajoPersonalUpdateView.as_view(), name='trabajo-personal-update'),
-    path('trabajos-personal/<int:pk>/delete/', TrabajoPersonalDestroyView.as_view(), name='trabajo-personal-delete'),
+    # path('trabajos-personal/<int:pk>/', TrabajoPersonalDetailView.as_view(), name='trabajo-personal-detail'), # Ya no se usa detail suelto por ahora?
+    path('trabajos-personal/<int:pk>/update/', update_trabajo_personal, name='trabajo-personal-update'),
+    path('trabajos-personal/<int:pk>/delete/', delete_trabajo_personal, name='trabajo-personal-delete'),
 
     # Tipo Trabajo
     path('tipo-trabajo/', get_tipo_trabajo, name='tipo-trabajo-list'),
