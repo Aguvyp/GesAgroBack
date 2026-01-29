@@ -132,6 +132,7 @@ urlpatterns = [
 
     # Trabajo Personal (Horas individuales)
     # path('trabajos-personal/<int:pk>/', TrabajoPersonalDetailView.as_view(), name='trabajo-personal-detail'), # Ya no se usa detail suelto por ahora?
+    path('trabajos-personal/create/', RegistrarHorasView.as_view(), name='trabajo-personal-create'),
     path('trabajos-personal/<int:pk>/update/', update_trabajo_personal, name='trabajo-personal-update'),
     path('trabajos-personal/<int:pk>/delete/', delete_trabajo_personal, name='trabajo-personal-delete'),
 
