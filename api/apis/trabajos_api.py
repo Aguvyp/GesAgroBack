@@ -7,6 +7,21 @@ from ..models import Trabajo
 from ..serializers import TrabajoSerializer
 from ..utils import get_usuario_id_from_request
 
+from django.db.models import Sum
+
+def _add_progress_to_trabajo_data(trabajo_obj, data):
+    """Auxiliar para inyectar ha_realizadas y porcentaje_progreso en el dict de datos."""
+    ha_realizadas = float(trabajo_obj.trabajopersonal_set.aggregate(total=Sum('hectareas'))['total'] or 0.0)
+    total_ha_campo = float(trabajo_obj.campo.hectareas) if trabajo_obj.campo and trabajo_obj.campo.hectareas else 0.0
+    
+    porcentaje = 0.0
+    if total_ha_campo > 0:
+        porcentaje = round((ha_realizadas / total_ha_campo) * 100, 2)
+        
+    data['ha_realizadas'] = ha_realizadas
+    data['porcentaje_progreso'] = porcentaje
+    return data
+
 @extend_schema(
     operation_id='get_trabajos',
     summary='Obtener trabajos',
@@ -31,11 +46,16 @@ def get_trabajos(request, pk=None):
     if pk is not None:
         trabajo = get_object_or_404(queryset, pk=pk)
         serializer = TrabajoSerializer(trabajo)
-        return Response(serializer.data)
+        data = _add_progress_to_trabajo_data(trabajo, serializer.data)
+        return Response(data)
     else:
         trabajos = queryset
-        serializer = TrabajoSerializer(trabajos, many=True)
-        return Response(serializer.data)
+        data_list = []
+        for t in trabajos:
+            serializer = TrabajoSerializer(t)
+            t_data = _add_progress_to_trabajo_data(t, serializer.data)
+            data_list.append(t_data)
+        return Response(data_list)
 
 @extend_schema(
     operation_id='get_trabajo_detalle',
@@ -60,6 +80,9 @@ def get_trabajo_detalle(request, pk):
     trabajo = get_object_or_404(queryset, pk=pk)
     serializer = TrabajoSerializer(trabajo)
     data = serializer.data
+    
+    # Inyectar progreso
+    data = _add_progress_to_trabajo_data(trabajo, data)
     
     # Ajustes específicos para que coincida con la spec detalle/{id}
     if 'personal_detail' in data:
