@@ -170,9 +170,30 @@ class TrabajoSerializer(serializers.ModelSerializer):
     campo_nombre = serializers.ReadOnlyField(source='campo.nombre')
     campo_ha = serializers.ReadOnlyField(source='campo.hectareas')
     
-    id_personal = serializers.ListField(child=serializers.IntegerField(), write_only=True, required=False)
-    id_maquinas = serializers.ListField(child=serializers.IntegerField(), write_only=True, required=False)
-    personal_hectareas = serializers.ListField(child=serializers.DictField(), write_only=True, required=False)
+    id_personal = serializers.ListField(
+        child=serializers.IntegerField(),
+        write_only=True,
+        required=False,
+        allow_empty=True,
+        allow_null=True,
+        default=list
+    )
+    id_maquinas = serializers.ListField(
+        child=serializers.IntegerField(),
+        write_only=True,
+        required=False,
+        allow_empty=True,
+        allow_null=True,
+        default=list
+    )
+    personal_hectareas = serializers.ListField(
+        child=serializers.DictField(),
+        write_only=True,
+        required=False,
+        allow_empty=True,
+        allow_null=True,
+        default=list
+    )
 
     personal_detail = TrabajoPersonalSerializer(source='trabajopersonal_set', many=True, read_only=True)
 
@@ -185,9 +206,9 @@ class TrabajoSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        id_personal = validated_data.pop('id_personal', [])
-        id_maquinas = validated_data.pop('id_maquinas', [])
-        personal_hectareas = validated_data.pop('personal_hectareas', [])
+        id_personal = validated_data.pop('id_personal', None) or []
+        id_maquinas = validated_data.pop('id_maquinas', None) or []
+        personal_hectareas = validated_data.pop('personal_hectareas', None) or []
         
         trabajo = Trabajo.objects.create(**validated_data)
         
