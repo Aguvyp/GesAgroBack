@@ -252,12 +252,12 @@ Si necesitas más funcionalidad, podemos agregar:
 
 ## 📚 Archivos Modificados
 
-### **`api/services/whatsapp_openai_agent.py`**
+### **`api/services/opencode_agent.py`**
 
 **Cambios:**
-1. Agregado import de `TrabajoPersonal`
-2. Agregadas 3 definiciones de tools (líneas ~437-483)
-3. Agregadas 3 implementaciones de funciones (líneas ~1260-1377)
+1. Centraliza los CRUD (trabajos, campos, clientes, costos, personal) en OpenCode.
+2. Adapta las funciones para ser usadas por cualquier canal (ahora Telegram) con un LLM gratuito.
+3. Ofrece serialización segura (Decimal/date) y funciones de asignación personal.
 
 ---
 

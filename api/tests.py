@@ -477,15 +477,3 @@ class GesAgroEndpointTestCase(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data.get('sincronizados', {}).get('trabajos'), 0)
-
-    @patch('api.controllers.whatsapp_controller.process_with_openai')
-    def test_whatsapp_webhook(self, mock_openai):
-        mock_openai.return_value = (True, 'respuesta simulada')
-        payload = {
-            'From': 'whatsapp:+5491112345678',
-            'Body': 'Hola',
-            'NumMedia': '0'
-        }
-        response = self.client.post(self._url('whatsapp/webhook/'), payload)
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.data.get('success'))

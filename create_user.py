@@ -18,31 +18,39 @@ def create_test_user():
     rol = 'Administrador'
     dni = '12345678'
 
-    # Verificar si el usuario ya existe
-    if Usuario.objects.filter(email=email).exists():
-        print(f'⚠ El usuario con email {email} ya existe.')
-        usuario = Usuario.objects.get(email=email)
-        print(f'✓ Usuario existente encontrado: {usuario.nombre}')
-        return usuario
-
-    # Crear usuario
-    usuario = Usuario.objects.create_user(
+    usuario, _created = Usuario.objects.get_or_create(
         email=email,
-        password=password,
-        nombre=nombre,
-        rol=rol
+        defaults={
+            'nombre': nombre,
+            'rol': rol,
+        },
     )
+    usuario.nombre = nombre
+    usuario.rol = rol
+    usuario.is_active = True
+    usuario.set_password(password)
+    usuario.save()
 
-    # Crear perfil de personal asociado
-    Personal.objects.create(
-        nombre=nombre,
-        dni=dni,
-        telefono='+5491123456789',
-        usuario=usuario
-    )
+    personal = Personal.objects.filter(usuario_id=usuario.id).first()
+    if personal is None:
+        personal = Personal.objects.filter(dni=dni).first()
+
+    if personal is None:
+        Personal.objects.create(
+            nombre=nombre,
+            dni=dni,
+            telefono='+5491123456789',
+            usuario_id=usuario.id
+        )
+    else:
+        personal.nombre = nombre
+        personal.dni = dni
+        personal.telefono = personal.telefono or '+5491123456789'
+        personal.usuario_id = usuario.id
+        personal.save()
 
     print(f'''
-✓ Usuario creado exitosamente!
+OK Usuario listo exitosamente!
   Email: {email}
   Password: {password}
   Nombre: {nombre}

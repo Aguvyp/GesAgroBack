@@ -208,7 +208,7 @@ Para tu caso de uso, recomiendo **implementar la Opción 1 (Validación en el Ba
 
 ## 📚 Archivos Modificados
 
-1. **`api/services/whatsapp_openai_agent.py`**:
+1. **`api/services/opencode_agent.py`**:
    - System prompt actualizado (líneas ~1114-1167)
    - Descripciones de `create_campo`, `create_cliente`, `create_personal` actualizadas
 

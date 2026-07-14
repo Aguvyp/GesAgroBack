@@ -92,6 +92,7 @@ class Campo(models.Model):
     hectareas = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
     latitud = models.DecimalField(max_digits=10, decimal_places=8, null=True, blank=True)
     longitud = models.DecimalField(max_digits=11, decimal_places=8, null=True, blank=True)
+    polygon_geojson = models.JSONField(null=True, blank=True)
     detalles = models.TextField(null=True, blank=True)
     usuario_id = models.IntegerField(null=True, blank=True, db_index=True)
     propio = models.BooleanField(default=False, null=True, blank=True)
@@ -104,6 +105,34 @@ class Campo(models.Model):
 
     def __str__(self):
         return self.nombre
+
+class Lote(models.Model):
+    campo = models.ForeignKey(Campo, on_delete=models.CASCADE, related_name='lotes', null=True, blank=True, db_constraint=False)
+    nombre = models.CharField(max_length=255, null=True, blank=True)
+    hectareas = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+    polygon_geojson = models.JSONField(null=True, blank=True)
+    punto_acceso_latitud = models.DecimalField(max_digits=10, decimal_places=8, null=True, blank=True)
+    punto_acceso_longitud = models.DecimalField(max_digits=11, decimal_places=8, null=True, blank=True)
+    punto_entrada_latitud = models.DecimalField(max_digits=10, decimal_places=8, null=True, blank=True)
+    punto_entrada_longitud = models.DecimalField(max_digits=11, decimal_places=8, null=True, blank=True)
+    notas_acceso = models.TextField(null=True, blank=True)
+    cliente_id = models.IntegerField(null=True, blank=True, db_index=True)
+    usuario_id = models.IntegerField(null=True, blank=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'lotes'
+        indexes = [
+            models.Index(fields=['campo']),
+            models.Index(fields=['usuario_id']),
+            models.Index(fields=['cliente_id']),
+        ]
+
+    def __str__(self):
+        if self.campo and self.campo.nombre:
+            return f'{self.campo.nombre} - {self.nombre}'
+        return self.nombre or 'Lote sin nombre'
 
 class Cliente(models.Model):
     nombre = models.CharField(max_length=255, null=True, blank=True)
@@ -189,8 +218,13 @@ class Trabajo(models.Model):
     fecha_inicio = models.DateField(null=True, blank=True)
     fecha_fin = models.DateField(null=True, blank=True)
     campo = models.ForeignKey(Campo, on_delete=models.CASCADE, related_name='trabajos', null=True, blank=True)
+    lote = models.ForeignKey(Lote, on_delete=models.SET_NULL, related_name='trabajos', null=True, blank=True)
     estado = models.CharField(max_length=50, default='Pendiente', null=True, blank=True)
     observaciones = models.TextField(null=True, blank=True)
+    indicaciones = models.TextField(null=True, blank=True)
+    estado_indicaciones = models.CharField(max_length=50, default='Borrador', null=True, blank=True)
+    indicaciones_enviadas_at = models.DateTimeField(null=True, blank=True)
+    indicaciones_enviadas_a = models.JSONField(default=list, null=True, blank=True)
     a_terceros = models.BooleanField(default=False, null=True, blank=True)
     cobrado = models.BooleanField(default=False, null=True, blank=True)
     monto_cobrado = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)

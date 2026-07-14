@@ -136,11 +136,10 @@ class Personal(models.Model):
 
 ## ✅ Pruebas Sugeridas
 
-Prueba las nuevas tools en el simulador:
-
-```bash
-python test_whatsapp_cli.py
-```
+Interactúa con el bot de Telegram para validar los flujos:
+1. Envía un mensaje con lenguaje natural (ej. “Crear personal Juan Pérez DNI 12345678”).
+2. Comparte tu contacto si es la primera vez (el bot guarda tu teléfono y lo vincula a tu usuario).
+3. Verifica que el bot responda confirmando la acción y mostrando los datos creados.
 
 ### Ejemplos de Mensajes:
 

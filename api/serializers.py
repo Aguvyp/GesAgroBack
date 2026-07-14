@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import (
-    Usuario, Personal, Campo, Cliente, Maquina, CampoCliente, 
+    Usuario, Personal, Campo, Lote, Cliente, Maquina, CampoCliente, 
     Costo, Factura, FacturaItem, Credito, CuotaCredito, Pago, 
     Movimiento, Mantenimiento, Insumo, TipoTrabajo, Trabajo, 
     TrabajoPersonal, AuthToken
@@ -72,8 +72,22 @@ class AuthTokenSerializer(serializers.ModelSerializer):
 # --- Entidades Serializers ---
 
 class CampoSerializer(serializers.ModelSerializer):
+    lotes_count = serializers.SerializerMethodField()
+
+    def get_lotes_count(self, obj):
+        return obj.lotes.count()
+
     class Meta:
         model = Campo
+        fields = '__all__'
+
+class LoteSerializer(serializers.ModelSerializer):
+    campo_nombre = serializers.ReadOnlyField(source='campo.nombre')
+    campo_latitud = serializers.ReadOnlyField(source='campo.latitud')
+    campo_longitud = serializers.ReadOnlyField(source='campo.longitud')
+
+    class Meta:
+        model = Lote
         fields = '__all__'
 
 class ClienteSerializer(serializers.ModelSerializer):
@@ -169,6 +183,14 @@ class TrabajoSerializer(serializers.ModelSerializer):
     tipo = serializers.ReadOnlyField(source='id_tipo_trabajo.trabajo')
     campo_nombre = serializers.ReadOnlyField(source='campo.nombre')
     campo_ha = serializers.ReadOnlyField(source='campo.hectareas')
+    lote_nombre = serializers.ReadOnlyField(source='lote.nombre')
+    lote_ha = serializers.ReadOnlyField(source='lote.hectareas')
+    lote_polygon_geojson = serializers.ReadOnlyField(source='lote.polygon_geojson')
+    lote_punto_acceso_latitud = serializers.ReadOnlyField(source='lote.punto_acceso_latitud')
+    lote_punto_acceso_longitud = serializers.ReadOnlyField(source='lote.punto_acceso_longitud')
+    lote_punto_entrada_latitud = serializers.ReadOnlyField(source='lote.punto_entrada_latitud')
+    lote_punto_entrada_longitud = serializers.ReadOnlyField(source='lote.punto_entrada_longitud')
+    lote_notas_acceso = serializers.ReadOnlyField(source='lote.notas_acceso')
     
     id_personal = serializers.ListField(
         child=serializers.IntegerField(),
@@ -205,10 +227,22 @@ class TrabajoSerializer(serializers.ModelSerializer):
             'maquinas': {'read_only': True},
         }
 
+    def validate(self, data):
+        campo = data.get('campo') or getattr(self.instance, 'campo', None)
+        lote = data.get('lote') or getattr(self.instance, 'lote', None)
+
+        if lote and campo and lote.campo_id != campo.id:
+            raise serializers.ValidationError({
+                'lote': 'El lote seleccionado no pertenece al campo indicado.'
+            })
+
+        return data
+
     def create(self, validated_data):
         id_personal = validated_data.pop('id_personal', None) or []
         id_maquinas = validated_data.pop('id_maquinas', None) or []
         personal_hectareas = validated_data.pop('personal_hectareas', None) or []
+        usuario_id = validated_data.get('usuario_id')
         
         trabajo = Trabajo.objects.create(**validated_data)
         
@@ -220,11 +254,16 @@ class TrabajoSerializer(serializers.ModelSerializer):
                 TrabajoPersonal.objects.create(
                     trabajo=trabajo,
                     personal_id=item['id'],
-                    hectareas=item.get('ha', 0)
+                    hectareas=item.get('ha', 0),
+                    usuario_id=usuario_id
                 )
         elif id_personal:
             for p_id in id_personal:
-                TrabajoPersonal.objects.create(trabajo=trabajo, personal_id=p_id)
+                TrabajoPersonal.objects.create(
+                    trabajo=trabajo,
+                    personal_id=p_id,
+                    usuario_id=usuario_id,
+                )
                 
         return trabajo
 
@@ -232,6 +271,7 @@ class TrabajoSerializer(serializers.ModelSerializer):
         id_personal = validated_data.pop('id_personal', None)
         id_maquinas = validated_data.pop('id_maquinas', None)
         personal_hectareas = validated_data.pop('personal_hectareas', None)
+        usuario_id = validated_data.get('usuario_id', instance.usuario_id)
         
         instance = super().update(instance, validated_data)
         
@@ -244,12 +284,17 @@ class TrabajoSerializer(serializers.ModelSerializer):
                 TrabajoPersonal.objects.create(
                     trabajo=instance,
                     personal_id=item['id'],
-                    hectareas=item.get('ha', 0)
+                    hectareas=item.get('ha', 0),
+                    usuario_id=usuario_id,
                 )
         elif id_personal is not None:
             TrabajoPersonal.objects.filter(trabajo=instance).delete()
             for p_id in id_personal:
-                TrabajoPersonal.objects.create(trabajo=instance, personal_id=p_id)
+                TrabajoPersonal.objects.create(
+                    trabajo=instance,
+                    personal_id=p_id,
+                    usuario_id=usuario_id,
+                )
                 
         return instance
 

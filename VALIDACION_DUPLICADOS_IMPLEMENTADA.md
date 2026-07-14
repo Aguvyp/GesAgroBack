@@ -177,7 +177,7 @@ Usuario: Decide qué hacer
 
 ## 📝 Archivos Modificados
 
-### **`api/services/whatsapp_openai_agent.py`**
+### **`api/services/opencode_agent.py`**
 
 **Líneas modificadas:**
 - `create_campo` (~593-625): Verificación de duplicados por nombre

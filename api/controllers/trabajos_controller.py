@@ -1,5 +1,6 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from ..models import Trabajo
 from ..serializers import TrabajoSerializer, RegistrarHorasSerializer
 from ..utils import get_usuario_id_from_request
@@ -10,6 +11,15 @@ class TrabajoCreateAPIView(generics.CreateAPIView):
     
     def perform_create(self, serializer):
         usuario_id = get_usuario_id_from_request(self.request)
+        lote = serializer.validated_data.get('lote')
+        campo = serializer.validated_data.get('campo')
+
+        if usuario_id:
+            if campo and campo.usuario_id != usuario_id:
+                raise ValidationError('El campo indicado no existe o no pertenece al usuario')
+            if lote and lote.usuario_id != usuario_id:
+                raise ValidationError('El lote indicado no existe o no pertenece al usuario')
+
         if usuario_id:
             serializer.save(usuario_id=usuario_id)
         else:
@@ -23,6 +33,19 @@ class TrabajoUpdateAPIView(generics.UpdateAPIView):
         if usuario_id:
             return Trabajo.objects.filter(usuario_id=usuario_id)
         return Trabajo.objects.none()
+
+    def perform_update(self, serializer):
+        usuario_id = get_usuario_id_from_request(self.request)
+        lote = serializer.validated_data.get('lote')
+        campo = serializer.validated_data.get('campo')
+
+        if usuario_id:
+            if campo and campo.usuario_id != usuario_id:
+                raise ValidationError('El campo indicado no existe o no pertenece al usuario')
+            if lote and lote.usuario_id != usuario_id:
+                raise ValidationError('El lote indicado no existe o no pertenece al usuario')
+
+        serializer.save()
 
 class TrabajoDestroyAPIView(generics.DestroyAPIView):
     serializer_class = TrabajoSerializer

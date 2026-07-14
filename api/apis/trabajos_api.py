@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from drf_spectacular.utils import extend_schema
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from ..models import Trabajo
 from ..serializers import TrabajoSerializer
 from ..utils import get_usuario_id_from_request
@@ -87,6 +88,46 @@ def get_trabajo_detalle(request, pk):
     # Ajustes específicos para que coincida con la spec detalle/{id}
     if 'personal_detail' in data:
         data['personal'] = data.pop('personal_detail')
+    return Response(data)
+
+
+@extend_schema(
+    operation_id='marcar_indicaciones_enviadas',
+    summary='Marcar indicaciones de trabajo como enviadas',
+    description='Actualiza el estado de indicaciones y registra destinatarios/fecha de envío para una orden de trabajo',
+    request=None,
+    responses={200: TrabajoSerializer, 404: 'Not Found'},
+)
+@api_view(['POST'])
+def marcar_indicaciones_enviadas(request, pk):
+    usuario_id = get_usuario_id_from_request(request)
+
+    if not usuario_id:
+        return Response(
+            {'detail': 'Token de acceso requerido'},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    trabajo = get_object_or_404(Trabajo.objects.filter(usuario_id=usuario_id), pk=pk)
+    destinatarios = request.data.get('destinatarios', []) if hasattr(request, 'data') else []
+
+    if destinatarios is None:
+        destinatarios = []
+    elif not isinstance(destinatarios, list):
+        destinatarios = [str(destinatarios)]
+
+    trabajo.estado_indicaciones = 'Enviadas'
+    trabajo.indicaciones_enviadas_at = timezone.now()
+    trabajo.indicaciones_enviadas_a = destinatarios
+    trabajo.save(update_fields=[
+        'estado_indicaciones',
+        'indicaciones_enviadas_at',
+        'indicaciones_enviadas_a',
+        'updated_at',
+    ])
+
+    serializer = TrabajoSerializer(trabajo)
+    data = _add_progress_to_trabajo_data(trabajo, serializer.data)
     return Response(data)
 
 from ..models import TrabajoPersonal

@@ -7,6 +7,8 @@ from .apis.usuarios_api import get_usuarios
 from .controllers.usuarios_controller import UsuarioCreateAPIView, UsuarioUpdateAPIView, UsuarioDestroyAPIView
 from .apis.campos_api import get_campos
 from .controllers.campos_controller import CampoCreateAPIView, CampoUpdateAPIView, CampoDestroyAPIView
+from .apis.lotes_api import get_lotes
+from .controllers.lotes_controller import LoteCreateAPIView, LoteUpdateAPIView, LoteDestroyAPIView
 from .apis.clientes_api import get_clientes
 from .controllers.clientes_controller import ClienteCreateAPIView, ClienteUpdateAPIView, ClienteDestroyAPIView
 from .apis.maquinas_api import get_maquinas
@@ -15,6 +17,7 @@ from .apis.personal_api import get_personal, validate_dni
 from .controllers.personal_controller import PersonalCreateAPIView, PersonalUpdateAPIView, PersonalDestroyAPIView
 from .apis.trabajos_api import (
     get_trabajos, get_trabajo_detalle,
+    marcar_indicaciones_enviadas,
     update_trabajo_personal, delete_trabajo_personal
 )
 from .controllers.trabajos_controller import (
@@ -56,7 +59,7 @@ from .apis.dashboard_api import (
 )
 from .apis.reportes_api import ReporteTrabajosView, ReporteFinancieroView
 from .apis.mobile_api import MobileSyncView
-from .apis.whatsapp_api import whatsapp_webhook
+from .apis.telegram_api import telegram_webhook
 from .apis.weather_api import get_weather_forecast
 
 urlpatterns = [
@@ -90,6 +93,13 @@ urlpatterns = [
     path('campos/create/', CampoCreateAPIView.as_view(), name='campo-create'),
     path('campos/<int:pk>/update/', CampoUpdateAPIView.as_view(), name='campo-update'),
     path('campos/<int:pk>/delete/', CampoDestroyAPIView.as_view(), name='campo-delete'),
+
+    # Lotes
+    path('lotes/', get_lotes, name='lote-list'),
+    path('lotes/<int:pk>/', get_lotes, name='lote-detail'),
+    path('lotes/create/', LoteCreateAPIView.as_view(), name='lote-create'),
+    path('lotes/<int:pk>/update/', LoteUpdateAPIView.as_view(), name='lote-update'),
+    path('lotes/<int:pk>/delete/', LoteDestroyAPIView.as_view(), name='lote-delete'),
 
     # Clientes
     path('clientes/', get_clientes, name='cliente-list'),
@@ -127,6 +137,7 @@ urlpatterns = [
     path('trabajos/detalle/<int:pk>/', get_trabajo_detalle, name='trabajo-full-detail'),
     path('trabajos/', get_trabajos, name='trabajo-list'),
     path('trabajos/<int:pk>/', get_trabajos, name='trabajo-detail'),
+    path('trabajos/<int:pk>/indicaciones/enviadas/', marcar_indicaciones_enviadas, name='trabajo-indicaciones-enviadas'),
     path('trabajos/<int:pk>/update/', TrabajoUpdateAPIView.as_view(), name='trabajo-update'),
     path('trabajos/<int:pk>/delete/', TrabajoDestroyAPIView.as_view(), name='trabajo-delete'),
 
@@ -220,6 +231,7 @@ urlpatterns = [
     # Endpoints Móviles
     path('mobile/sync/', MobileSyncView.as_view(), name='mobile-sync'),
 
-    # WhatsApp Webhook
-    path('whatsapp/webhook/', whatsapp_webhook, name='whatsapp-webhook'),
+
+    # Telegram Webhook
+    path('telegram/webhook/', telegram_webhook, name='telegram-webhook'),
 ]
