@@ -4,7 +4,7 @@
 
 gesagro.site {
     encode zstd gzip
-    reverse_proxy host.docker.internal:18000
+    reverse_proxy backend:8000
 
     header {
         Strict-Transport-Security "max-age=31536000; includeSubDomains"
