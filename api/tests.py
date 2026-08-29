@@ -29,7 +29,7 @@ class GesAgroEndpointTestCase(TestCase):
         cls.campo = Campo.objects.create(
             nombre='Campo Maestro',
             hectareas=55.5,
-            usuario_id=cls.user.id
+            usuario_id=cls.user.id,
         )
         cls.cliente = Cliente.objects.create(
             nombre='Cliente Maestro',
@@ -108,7 +108,6 @@ class GesAgroEndpointTestCase(TestCase):
             numero_cuota=1,
             fecha_vencimiento=date.today(),
             monto_total=2500,
-            usuario_id=cls.user.id
         )
         cls.pago = Pago.objects.create(
             monto=200,
@@ -174,6 +173,9 @@ class GesAgroEndpointTestCase(TestCase):
         login_resp = self.client.post(self._url('auth/login/'), login_payload, format='json')
         self.assertEqual(login_resp.status_code, 200)
         self.assertIn('access_token', login_resp.data)
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f"Bearer {login_resp.data['access_token']}"
+        )
 
         update_payload = {
             'email': self.user.email,
@@ -256,10 +258,15 @@ class GesAgroEndpointTestCase(TestCase):
 
     def test_create_endpoints(self):
         today = date.today().isoformat()
+        campo_sin_asignar = Campo.objects.create(
+            nombre='Campo para asignar',
+            hectareas=5,
+            usuario_id=self.user.id,
+        )
         create_cases = [
             ('campos/create/', {'nombre': 'Campo Prueba', 'hectareas': 10}),
             ('clientes/create/', {'nombre': 'Cliente Prueba'}),
-            ('campos-cliente/create/', {'campo': self.campo.id, 'cliente': self.cliente.id}),
+            ('campos-cliente/create/', {'campo': campo_sin_asignar.id, 'cliente': self.cliente.id}),
             ('maquinas/create/', {'nombre': 'Maquina Prueba'}),
             ('personal/create/', {'nombre': 'Personal Nuevo', 'dni': '11223344', 'telefono': '+5491177777777'}),
             ('tipo-trabajo/create/', {'trabajo': 'Laboreo'}),
@@ -390,7 +397,12 @@ class GesAgroEndpointTestCase(TestCase):
 
         def make_cuota():
             credito = make_credito()
-            return CuotaCredito.objects.create(credito=credito, numero_cuota=3, fecha_vencimiento=date.today(), monto_total=100, usuario_id=self.user.id)
+            return CuotaCredito.objects.create(
+                credito=credito,
+                numero_cuota=3,
+                fecha_vencimiento=date.today(),
+                monto_total=100,
+            )
 
         def make_pago():
             factura = make_factura()
@@ -463,8 +475,8 @@ class GesAgroEndpointTestCase(TestCase):
         mock_get.return_value.json.return_value = payload
 
         params = {'lat': '-34', 'lon': '-58'}
-        resp1 = self.client.get(self._url('clima/pronostico/'), params=params)
-        resp2 = self.client.get(self._url('clima/pronostico'), params=params)
+        resp1 = self.client.get(self._url('clima/pronostico/'), data=params)
+        resp2 = self.client.get(self._url('clima/pronostico'), data=params)
         self.assertEqual(resp1.status_code, 200)
         self.assertEqual(resp2.status_code, 200)
         self.assertIn('actual', resp1.data)

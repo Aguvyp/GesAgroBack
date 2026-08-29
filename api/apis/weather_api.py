@@ -139,3 +139,12 @@ def get_weather_forecast(request):
     cache.set(cache_key, result, 900)
 
     return Response(result)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def weather_health(request):
+    return Response({
+        'status': 'ok',
+        'message': 'Server is reaching the weather API routing',
+    })

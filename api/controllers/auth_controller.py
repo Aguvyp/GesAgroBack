@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from ..serializers import RegisterSerializer, LoginSerializer, UsuarioSerializer, UpdatePasswordSerializer
 from ..models import Usuario, Personal
 from ..services.auth_token_service import create_auth_token, invalidate_token
@@ -65,7 +65,7 @@ class LoginView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UpdatePasswordView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = UpdatePasswordSerializer(data=request.data)
         if serializer.is_valid():
@@ -73,6 +73,11 @@ class UpdatePasswordView(APIView):
             password = serializer.validated_data['password']
             
             try:
+                if request.user.email != email:
+                    return Response(
+                        {"detail": "No puede modificar la contraseña de otro usuario"},
+                        status=status.HTTP_403_FORBIDDEN,
+                    )
                 # Buscar el usuario por email en la tabla Usuarios
                 user = Usuario.objects.get(email=email)
                 

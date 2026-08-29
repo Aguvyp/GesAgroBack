@@ -3,6 +3,12 @@ from rest_framework.response import Response
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from .controllers.auth_controller import RegisterView, LoginView, UpdatePasswordView, TestView, HealthCheckView, LogoutView
+from .apis.tareas_recordatorio_api import get_tareas_recordatorio
+from .controllers.tareas_recordatorio_controller import (
+    TareaRecordatorioCreateAPIView,
+    TareaRecordatorioDestroyAPIView,
+    TareaRecordatorioUpdateAPIView,
+)
 from .apis.usuarios_api import get_usuarios
 from .controllers.usuarios_controller import UsuarioCreateAPIView, UsuarioUpdateAPIView, UsuarioDestroyAPIView
 from .apis.campos_api import get_campos
@@ -24,6 +30,7 @@ from .controllers.trabajos_controller import (
     TrabajoCreateAPIView, TrabajoUpdateAPIView, 
     TrabajoDestroyAPIView, RegistrarHorasView
 )
+from .controllers.trabajo_personal_controller import TrabajoPersonalDetailView
 
 
 from .apis.tipo_trabajo_api import get_tipo_trabajo
@@ -60,13 +67,13 @@ from .apis.dashboard_api import (
 from .apis.reportes_api import ReporteTrabajosView, ReporteFinancieroView
 from .apis.mobile_api import MobileSyncView
 from .apis.telegram_api import telegram_webhook
-from .apis.weather_api import get_weather_forecast
+from .apis.weather_api import get_weather_forecast, weather_health
 
 urlpatterns = [
     # Clima
     path('clima/pronostico/', get_weather_forecast, name='weather-forecast'),
     path('clima/pronostico', get_weather_forecast),
-    path('clima/test/', lambda r: Response({"status": "ok", "message": "Server is reaching the weather API routing"}), name='weather-test'),
+    path('clima/test/', weather_health, name='weather-test'),
 
     # Swagger
     path('schema/', SpectacularAPIView.as_view(), name='schema'),
@@ -79,6 +86,13 @@ urlpatterns = [
     path('auth/update-password/', UpdatePasswordView.as_view(), name='auth-update-password'),
     path('auth/test/', TestView.as_view(), name='auth-test'),
     path('health/', HealthCheckView.as_view(), name='health'),
+
+    # Tareas recordatorio
+    path('tareas-recordatorio/', get_tareas_recordatorio, name='tarea-recordatorio-list'),
+    path('tareas-recordatorio/<int:pk>/', get_tareas_recordatorio, name='tarea-recordatorio-detail'),
+    path('tareas-recordatorio/create/', TareaRecordatorioCreateAPIView.as_view(), name='tarea-recordatorio-create'),
+    path('tareas-recordatorio/<int:pk>/update/', TareaRecordatorioUpdateAPIView.as_view(), name='tarea-recordatorio-update'),
+    path('tareas-recordatorio/<int:pk>/delete/', TareaRecordatorioDestroyAPIView.as_view(), name='tarea-recordatorio-delete'),
 
     # Usuarios
     path('usuarios/', get_usuarios, name='usuario-list'),
@@ -142,7 +156,7 @@ urlpatterns = [
     path('trabajos/<int:pk>/delete/', TrabajoDestroyAPIView.as_view(), name='trabajo-delete'),
 
     # Trabajo Personal (Horas individuales)
-    # path('trabajos-personal/<int:pk>/', TrabajoPersonalDetailView.as_view(), name='trabajo-personal-detail'), # Ya no se usa detail suelto por ahora?
+    path('trabajos-personal/<int:pk>/', TrabajoPersonalDetailView.as_view(), name='trabajo-personal-detail'),
     path('trabajos-personal/create/', RegistrarHorasView.as_view(), name='trabajo-personal-create'),
     path('trabajos-personal/<int:pk>/update/', update_trabajo_personal, name='trabajo-personal-update'),
     path('trabajos-personal/<int:pk>/delete/', delete_trabajo_personal, name='trabajo-personal-delete'),

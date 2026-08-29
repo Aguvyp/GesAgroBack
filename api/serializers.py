@@ -3,7 +3,7 @@ from .models import (
     Usuario, Personal, Campo, Lote, Cliente, Maquina, CampoCliente, 
     Costo, Factura, FacturaItem, Credito, CuotaCredito, Pago, 
     Movimiento, Mantenimiento, Insumo, TipoTrabajo, Trabajo, 
-    TrabajoPersonal, AuthToken
+    TrabajoPersonal, AuthToken, TareaRecordatorio
 )
 
 # --- Auth Serializers ---
@@ -68,6 +68,12 @@ class AuthTokenSerializer(serializers.ModelSerializer):
         model = AuthToken
         fields = ['id', 'access_token', 'usuario_id', 'created_at', 'expires_at', 'is_active']
         read_only_fields = ['id', 'access_token', 'created_at']
+
+class TareaRecordatorioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TareaRecordatorio
+        fields = '__all__'
+        read_only_fields = ('id', 'usuario_id', 'created_at', 'updated_at')
 
 # --- Entidades Serializers ---
 

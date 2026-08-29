@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -62,13 +64,13 @@ class ReporteFinancieroView(APIView):
         
         movimientos = Movimiento.objects.filter(usuario_id=usuario_id, fecha__startswith=periodo)
         
-        ingresos_total = movimientos.filter(es_cobro=True).aggregate(Sum('monto'))['monto__sum'] or 0.0
-        gastos_total = movimientos.filter(es_cobro=False).aggregate(Sum('monto'))['monto__sum'] or 0.0
+        ingresos_total = movimientos.filter(es_cobro=True).aggregate(Sum('monto'))['monto__sum'] or Decimal('0')
+        gastos_total = movimientos.filter(es_cobro=False).aggregate(Sum('monto'))['monto__sum'] or Decimal('0')
         
         # Categorías simplificadas
         gastos_por_cat = {}
         for m in movimientos.filter(es_cobro=False):
-            gastos_por_cat[m.categoria] = gastos_por_cat.get(m.categoria, 0.0) + m.monto
+            gastos_por_cat[m.categoria] = gastos_por_cat.get(m.categoria, Decimal('0')) + m.monto
 
         return Response({
             "periodo": periodo,

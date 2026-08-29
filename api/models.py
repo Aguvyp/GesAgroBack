@@ -75,6 +75,27 @@ class AuthToken(models.Model):
     def __str__(self):
         return f"Token for user {self.usuario_id}"
 
+class TareaRecordatorio(models.Model):
+    URGENCIAS = (
+        ('high', 'Alta'),
+        ('medium', 'Media'),
+        ('low', 'Baja'),
+    )
+
+    texto = models.CharField(max_length=500)
+    urgencia = models.CharField(max_length=20, choices=URGENCIAS, default='medium')
+    completada = models.BooleanField(default=False)
+    usuario_id = models.IntegerField(null=True, blank=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'tareas_recordatorio'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.texto
+
 class TipoTrabajo(models.Model):
     trabajo = models.CharField(max_length=100, unique=True, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
