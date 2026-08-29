@@ -16,12 +16,36 @@ class UsuarioSerializer(serializers.ModelSerializer):
         model = Usuario
         fields = ('id', 'nombre', 'email', 'rol', 'activo', 'fecha_creacion', 'ultimo_acceso')
 
+class AdminUsuarioSerializer(UsuarioSerializer):
+    password = serializers.CharField(write_only=True, required=True, min_length=8)
+    rol = serializers.ChoiceField(choices=('Dueño', 'Empleado'))
+
+    class Meta(UsuarioSerializer.Meta):
+        fields = UsuarioSerializer.Meta.fields + ('password',)
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        activo = validated_data.pop('is_active', True)
+        return Usuario.objects.create_user(
+            password=password,
+            is_active=activo,
+            **validated_data,
+        )
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        instance = super().update(instance, validated_data)
+        if password:
+            instance.set_password(password)
+            instance.save(update_fields=['password'])
+        return instance
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     dni = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     telefono = serializers.CharField(required=False, allow_blank=True)
     nombre = serializers.CharField(required=False, allow_blank=True)
-    rol = serializers.CharField(required=False, default='Operario')
+    rol = serializers.CharField(required=False, default='Empleado')
     is_staff = serializers.BooleanField(required=False, default=False)
     is_superuser = serializers.BooleanField(required=False, default=False)
 
@@ -36,7 +60,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         extra_fields = {
             'nombre': validated_data.get('nombre', ''),
             'telefono': validated_data.get('telefono', ''),
-            'rol': validated_data.get('rol', 'Operario'),
+            'rol': validated_data.get('rol', 'Empleado'),
             'is_staff': validated_data.get('is_staff', False),
             'is_superuser': validated_data.get('is_superuser', False),
         }

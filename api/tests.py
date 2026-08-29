@@ -13,6 +13,63 @@ from .models import (
 from .services.auth_token_service import create_auth_token
 
 
+class UsuarioAdministrationTestCase(TestCase):
+    def setUp(self):
+        self.superadmin = Usuario.objects.create_superuser(
+            email='superadmin@example.com',
+            password='SuperSecret123!',
+            nombre='Superadmin',
+        )
+        self.employee = Usuario.objects.create_user(
+            email='employee@example.com',
+            password='SuperSecret123!',
+            nombre='Empleado',
+            rol='Empleado',
+        )
+
+    def authenticated_client(self, user):
+        client = APIClient()
+        token = create_auth_token(user.id)
+        client.credentials(HTTP_AUTHORIZATION=f'Bearer {token.access_token}')
+        return client
+
+    def test_only_superadmin_can_list_users(self):
+        response = self.authenticated_client(self.employee).get('/api/usuarios/')
+        self.assertEqual(response.status_code, 403)
+        response = self.authenticated_client(self.superadmin).get('/api/usuarios/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_superadmin_creates_user_with_hashed_password_and_allowed_role(self):
+        response = self.authenticated_client(self.superadmin).post(
+            '/api/usuarios/create/',
+            {
+                'nombre': 'Nuevo Dueño',
+                'email': 'owner@example.com',
+                'password': 'AnotherSecret123!',
+                'rol': 'Dueño',
+                'activo': True,
+            },
+            format='json',
+        )
+        self.assertEqual(response.status_code, 201, response.data)
+        created = Usuario.objects.get(email='owner@example.com')
+        self.assertTrue(created.check_password('AnotherSecret123!'))
+        self.assertNotEqual(created.password, 'AnotherSecret123!')
+        self.assertEqual(created.rol, 'Dueño')
+
+    def test_superadmin_cannot_assign_superadmin_role(self):
+        response = self.authenticated_client(self.superadmin).post(
+            '/api/usuarios/create/',
+            {
+                'email': 'other-admin@example.com',
+                'password': 'AnotherSecret123!',
+                'rol': 'Superadmin',
+            },
+            format='json',
+        )
+        self.assertEqual(response.status_code, 400)
+
+
 class GesAgroEndpointTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -21,7 +78,8 @@ class GesAgroEndpointTestCase(TestCase):
             email='test-coverage@example.com',
             password=cls.password,
             nombre='Tester Cobertura',
-            telefono='+5491112345678'
+            telefono='+5491112345678',
+            rol='Superadmin',
         )
         cls.token = create_auth_token(cls.user.id)
 

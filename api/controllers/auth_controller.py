@@ -4,10 +4,11 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from ..serializers import RegisterSerializer, LoginSerializer, UsuarioSerializer, UpdatePasswordSerializer
 from ..models import Usuario, Personal
+from ..permissions import IsSuperadmin
 from ..services.auth_token_service import create_auth_token, invalidate_token
 
 class RegisterView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated, IsSuperadmin]
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():

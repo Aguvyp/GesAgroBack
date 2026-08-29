@@ -12,7 +12,7 @@ class UsuarioManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('rol', 'Administrador')
+        extra_fields.setdefault('rol', 'Superadmin')
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
@@ -26,14 +26,14 @@ class UsuarioManager(BaseUserManager):
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
     ROLES = (
-        ('Administrador', 'Administrador'),
-        ('Contable', 'Contable'),
-        ('Operario', 'Operario'),
+        ('Superadmin', 'Superadmin'),
+        ('Dueño', 'Dueño'),
+        ('Empleado', 'Empleado'),
     )
     nombre = models.CharField(max_length=255, null=True, blank=True)
     email = models.EmailField(unique=True, null=True, blank=True)
     # password viene de AbstractBaseUser
-    rol = models.CharField(max_length=50, choices=ROLES, default='Operario', null=True, blank=True)
+    rol = models.CharField(max_length=50, choices=ROLES, default='Empleado', null=True, blank=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
