@@ -11,6 +11,18 @@ from .models import (
     Credito, CuotaCredito, Pago, Movimiento, Mantenimiento, Insumo
 )
 from .services.auth_token_service import create_auth_token
+from .serializers import PersonalSerializer
+
+
+class PersonalOptionalDniTestCase(TestCase):
+    def test_multiple_personal_records_can_be_created_without_dni(self):
+        for nombre in ('Empleado Uno', 'Empleado Dos'):
+            serializer = PersonalSerializer(data={'nombre': nombre, 'dni': ''})
+            self.assertTrue(serializer.is_valid(), serializer.errors)
+            personal = serializer.save()
+            self.assertIsNone(personal.dni)
+
+        self.assertEqual(Personal.objects.filter(dni__isnull=True).count(), 2)
 
 
 class UsuarioAdministrationTestCase(TestCase):

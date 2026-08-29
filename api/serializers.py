@@ -135,6 +135,7 @@ class MaquinaSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PersonalSerializer(serializers.ModelSerializer):
+    dni = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     superficie_total_ha = serializers.FloatField(default=0.0, read_only=True)
     horas_trabajadas = serializers.FloatField(default=0.0, read_only=True)
     trabajos_completados = serializers.IntegerField(default=0, read_only=True)
@@ -143,6 +144,13 @@ class PersonalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Personal
         fields = '__all__'
+
+    def validate_dni(self, value):
+        # Guardar los DNI vacíos como NULL permite registrar varias personas
+        # sin DNI sin violar la restricción unique de la base de datos.
+        if value is None or not value.strip():
+            return None
+        return value.strip()
 
 class CampoClienteSerializer(serializers.ModelSerializer):
     class Meta:
