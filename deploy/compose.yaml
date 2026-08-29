@@ -1,0 +1,64 @@
+services:
+  database:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: gesagro
+      MYSQL_USER: gesagro
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - gesagro_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks: [internal]
+
+  backend:
+    build:
+      context: ..
+    restart: unless-stopped
+    env_file: .env.server
+    environment:
+      DATABASE_HOST: database
+      DATABASE_PORT: 3306
+      DATABASE_NAME: gesagro
+      DATABASE_USER: gesagro
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:18000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health/')"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "443:443"
+      - "443:443/udp"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - gesagro_caddy_data:/data
+      - gesagro_caddy_config:/config
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  gesagro_mysql_data:
+  gesagro_caddy_data:
+  gesagro_caddy_config:
+
+networks:
+  internal:
