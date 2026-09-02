@@ -68,8 +68,22 @@ from .apis.reportes_api import ReporteTrabajosView, ReporteFinancieroView
 from .apis.mobile_api import MobileSyncView
 from .apis.telegram_api import telegram_webhook
 from .apis.weather_api import get_weather_forecast, weather_health
+from .controllers.marketplace_controller import (
+    MiPerfilMarketplaceView, ServiciosMarketplaceView,
+    ServicioMarketplaceDetailView, PedidosMarketplaceView,
+    PedidoMarketplaceDetailView, MapaMarketplaceView, ContactoMarketplaceView,
+)
 
 urlpatterns = [
+    # Marketplace geolocalizado
+    path('marketplace/perfil/', MiPerfilMarketplaceView.as_view(), name='marketplace-profile'),
+    path('marketplace/mapa/', MapaMarketplaceView.as_view(), name='marketplace-map'),
+    path('marketplace/servicios/', ServiciosMarketplaceView.as_view(), name='marketplace-services'),
+    path('marketplace/servicios/<int:pk>/', ServicioMarketplaceDetailView.as_view(), name='marketplace-service-detail'),
+    path('marketplace/pedidos/', PedidosMarketplaceView.as_view(), name='marketplace-orders'),
+    path('marketplace/pedidos/<int:pk>/', PedidoMarketplaceDetailView.as_view(), name='marketplace-order-detail'),
+    path('marketplace/contacto/<str:tipo>/<int:pk>/', ContactoMarketplaceView.as_view(), name='marketplace-contact'),
+
     # Clima
     path('clima/pronostico/', get_weather_forecast, name='weather-forecast'),
     path('clima/pronostico', get_weather_forecast),

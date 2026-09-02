@@ -96,6 +96,79 @@ class TareaRecordatorio(models.Model):
     def __str__(self):
         return self.texto
 
+
+class PerfilMarketplace(models.Model):
+    TIPOS = (
+        ('Productor', 'Productor'),
+        ('Prestador', 'Prestador'),
+        ('Ambos', 'Ambos'),
+    )
+
+    usuario = models.OneToOneField(
+        Usuario, on_delete=models.CASCADE, related_name='perfil_marketplace'
+    )
+    tipo = models.CharField(max_length=20, choices=TIPOS, default='Productor')
+    nombre_publico = models.CharField(max_length=255)
+    descripcion = models.TextField(blank=True, default='')
+    telefono_contacto = models.CharField(max_length=50, blank=True, default='')
+    localidad = models.CharField(max_length=150, blank=True, default='')
+    latitud = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
+    longitud = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
+    radio_cobertura_km = models.PositiveIntegerField(default=50)
+    activo = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'perfiles_marketplace'
+
+
+class ServicioMarketplace(models.Model):
+    usuario = models.ForeignKey(
+        Usuario, on_delete=models.CASCADE, related_name='servicios_marketplace'
+    )
+    titulo = models.CharField(max_length=150)
+    categoria = models.CharField(max_length=100)
+    descripcion = models.TextField(blank=True, default='')
+    latitud = models.DecimalField(max_digits=10, decimal_places=7)
+    longitud = models.DecimalField(max_digits=10, decimal_places=7)
+    radio_cobertura_km = models.PositiveIntegerField(default=50)
+    disponible = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'servicios_marketplace'
+        ordering = ['-created_at']
+        indexes = [models.Index(fields=['categoria', 'disponible'])]
+
+
+class PedidoServicioMarketplace(models.Model):
+    ESTADOS = (
+        ('Publicado', 'Publicado'),
+        ('Pausado', 'Pausado'),
+        ('Cerrado', 'Cerrado'),
+    )
+
+    usuario = models.ForeignKey(
+        Usuario, on_delete=models.CASCADE, related_name='pedidos_marketplace'
+    )
+    titulo = models.CharField(max_length=150)
+    categoria = models.CharField(max_length=100)
+    descripcion = models.TextField(blank=True, default='')
+    latitud = models.DecimalField(max_digits=10, decimal_places=7)
+    longitud = models.DecimalField(max_digits=10, decimal_places=7)
+    hectareas = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    fecha_necesaria = models.DateField(null=True, blank=True)
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='Publicado')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'pedidos_servicio_marketplace'
+        ordering = ['-created_at']
+        indexes = [models.Index(fields=['categoria', 'estado'])]
+
 class TipoTrabajo(models.Model):
     trabajo = models.CharField(max_length=100, unique=True, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

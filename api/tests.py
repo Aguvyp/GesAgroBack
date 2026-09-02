@@ -25,6 +25,70 @@ class PersonalOptionalDniTestCase(TestCase):
         self.assertEqual(Personal.objects.filter(dni__isnull=True).count(), 2)
 
 
+class MarketplaceTestCase(TestCase):
+    def setUp(self):
+        self.owner = Usuario.objects.create_user(
+            email='prestador@example.com', password='Secret123!', nombre='Juan Prestador'
+        )
+        self.other = Usuario.objects.create_user(
+            email='productor@example.com', password='Secret123!', nombre='Ana Productora'
+        )
+
+    def client_for(self, user):
+        client = APIClient()
+        token = create_auth_token(user.id)
+        client.credentials(HTTP_AUTHORIZATION=f'Bearer {token.access_token}')
+        return client
+
+    def test_marketplace_flow_and_contact_privacy(self):
+        owner_client = self.client_for(self.owner)
+        response = owner_client.put('/api/marketplace/perfil/', {
+            'tipo': 'Prestador',
+            'nombre_publico': 'Juan P.',
+            'telefono_contacto': '3415551234',
+            'localidad': 'Rosario',
+            'latitud': -32.9468,
+            'longitud': -60.6393,
+        }, format='json')
+        self.assertEqual(response.status_code, 201, response.data)
+
+        response = owner_client.post('/api/marketplace/servicios/', {
+            'titulo': 'Siembra de precisión',
+            'categoria': 'Siembra',
+            'descripcion': 'Equipo disponible',
+            'latitud': -32.9468123,
+            'longitud': -60.6393123,
+            'radio_cobertura_km': 80,
+        }, format='json')
+        self.assertEqual(response.status_code, 201, response.data)
+        service_id = response.data['id']
+
+        other_client = self.client_for(self.other)
+        response = other_client.post('/api/marketplace/pedidos/', {
+            'titulo': 'Necesito cosecha',
+            'categoria': 'Cosecha',
+            'latitud': -33.12,
+            'longitud': -61.01,
+            'hectareas': 120,
+        }, format='json')
+        self.assertEqual(response.status_code, 201, response.data)
+
+        response = other_client.get('/api/marketplace/mapa/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data['servicios']), 1)
+        self.assertEqual(len(response.data['pedidos']), 1)
+        self.assertNotIn('telefono_contacto', response.data['servicios'][0])
+        self.assertEqual(float(response.data['servicios'][0]['latitud']), -32.947)
+
+        response = other_client.get(f'/api/marketplace/contacto/servicio/{service_id}/')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.data['bloqueado'])
+        self.assertNotIn('telefono', response.data)
+
+        response = other_client.delete(f'/api/marketplace/servicios/{service_id}/')
+        self.assertEqual(response.status_code, 404)
+
+
 class UsuarioAdministrationTestCase(TestCase):
     def setUp(self):
         self.superadmin = Usuario.objects.create_superuser(

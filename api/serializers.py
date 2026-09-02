@@ -3,7 +3,8 @@ from .models import (
     Usuario, Personal, Campo, Lote, Cliente, Maquina, CampoCliente, 
     Costo, Factura, FacturaItem, Credito, CuotaCredito, Pago, 
     Movimiento, Mantenimiento, Insumo, TipoTrabajo, Trabajo, 
-    TrabajoPersonal, AuthToken, TareaRecordatorio
+    TrabajoPersonal, AuthToken, TareaRecordatorio, PerfilMarketplace,
+    ServicioMarketplace, PedidoServicioMarketplace
 )
 
 # --- Auth Serializers ---
@@ -98,6 +99,79 @@ class TareaRecordatorioSerializer(serializers.ModelSerializer):
         model = TareaRecordatorio
         fields = '__all__'
         read_only_fields = ('id', 'usuario_id', 'created_at', 'updated_at')
+
+
+class PerfilMarketplaceSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(source='usuario.email', read_only=True)
+
+    class Meta:
+        model = PerfilMarketplace
+        fields = (
+            'id', 'tipo', 'nombre_publico', 'descripcion', 'telefono_contacto',
+            'email', 'localidad', 'latitud', 'longitud', 'radio_cobertura_km',
+            'activo', 'created_at', 'updated_at',
+        )
+        read_only_fields = ('id', 'email', 'created_at', 'updated_at')
+
+
+class MarketplacePublicMixin:
+    def validate_latitud(self, value):
+        if not -90 <= value <= 90:
+            raise serializers.ValidationError('Latitud fuera de rango.')
+        return value
+
+    def validate_longitud(self, value):
+        if not -180 <= value <= 180:
+            raise serializers.ValidationError('Longitud fuera de rango.')
+        return value
+
+    def get_nombre_publico(self, obj):
+        try:
+            return obj.usuario.perfil_marketplace.nombre_publico
+        except PerfilMarketplace.DoesNotExist:
+            return obj.usuario.nombre or 'Usuario GesAgro'
+
+    def get_es_propio(self, obj):
+        request = self.context.get('request')
+        return bool(request and request.user.id == obj.usuario_id)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Aproximadamente 100 m: suficiente para descubrir oferta/demanda sin
+        # revelar una ubicación privada exacta.
+        data['latitud'] = round(float(instance.latitud), 3)
+        data['longitud'] = round(float(instance.longitud), 3)
+        return data
+
+
+class ServicioMarketplaceSerializer(MarketplacePublicMixin, serializers.ModelSerializer):
+    propietario_id = serializers.IntegerField(source='usuario_id', read_only=True)
+    nombre_publico = serializers.SerializerMethodField()
+    es_propio = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ServicioMarketplace
+        fields = (
+            'id', 'propietario_id', 'nombre_publico', 'es_propio', 'titulo',
+            'categoria', 'descripcion', 'latitud', 'longitud',
+            'radio_cobertura_km', 'disponible', 'created_at', 'updated_at',
+        )
+        read_only_fields = ('id', 'propietario_id', 'nombre_publico', 'es_propio', 'created_at', 'updated_at')
+
+
+class PedidoServicioMarketplaceSerializer(MarketplacePublicMixin, serializers.ModelSerializer):
+    propietario_id = serializers.IntegerField(source='usuario_id', read_only=True)
+    nombre_publico = serializers.SerializerMethodField()
+    es_propio = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PedidoServicioMarketplace
+        fields = (
+            'id', 'propietario_id', 'nombre_publico', 'es_propio', 'titulo',
+            'categoria', 'descripcion', 'latitud', 'longitud', 'hectareas',
+            'fecha_necesaria', 'estado', 'created_at', 'updated_at',
+        )
+        read_only_fields = ('id', 'propietario_id', 'nombre_publico', 'es_propio', 'created_at', 'updated_at')
 
 # --- Entidades Serializers ---
 
