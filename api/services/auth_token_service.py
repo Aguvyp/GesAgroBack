@@ -15,20 +15,19 @@ def generate_access_token() -> str:
 
 def create_auth_token(usuario_id: int, expires_in_days: int = 30) -> AuthToken:
     """
-    Crea o actualiza un token de acceso para un usuario.
-    Si ya existe un token para el usuario, lo actualiza con un nuevo token.
+    Crea un token independiente para cada inicio de sesión/dispositivo.
+
+    No se reemplaza el token anterior: hacerlo desconectaba silenciosamente el
+    celular cuando el mismo usuario iniciaba sesión en otro dispositivo.
     """
     token = generate_access_token()
     expires_at = timezone.now() + timedelta(days=expires_in_days)
     
-    # Usar update_or_create para actualizar si existe o crear si no existe
-    auth_token, created = AuthToken.objects.update_or_create(
+    auth_token = AuthToken.objects.create(
         usuario_id=usuario_id,
-        defaults={
-            'access_token': token,
-            'expires_at': expires_at,
-            'is_active': True
-        }
+        access_token=token,
+        expires_at=expires_at,
+        is_active=True,
     )
     return auth_token
 

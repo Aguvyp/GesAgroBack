@@ -158,6 +158,7 @@ class PedidoServicioMarketplace(models.Model):
     descripcion = models.TextField(blank=True, default='')
     latitud = models.DecimalField(max_digits=10, decimal_places=7)
     longitud = models.DecimalField(max_digits=10, decimal_places=7)
+    radio_cobertura_km = models.PositiveIntegerField(default=50)
     hectareas = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     fecha_necesaria = models.DateField(null=True, blank=True)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='Publicado')

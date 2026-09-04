@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework.response import Response
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
-from .controllers.auth_controller import RegisterView, LoginView, UpdatePasswordView, TestView, HealthCheckView, LogoutView
+from .controllers.auth_controller import RegisterView, LoginView, UpdatePasswordView, TestView, SessionView, HealthCheckView, LogoutView
 from .apis.tareas_recordatorio_api import get_tareas_recordatorio
 from .controllers.tareas_recordatorio_controller import (
     TareaRecordatorioCreateAPIView,
@@ -99,6 +99,7 @@ urlpatterns = [
     path('auth/logout/', LogoutView.as_view(), name='auth-logout'),
     path('auth/update-password/', UpdatePasswordView.as_view(), name='auth-update-password'),
     path('auth/test/', TestView.as_view(), name='auth-test'),
+    path('auth/session/', SessionView.as_view(), name='auth-session'),
     path('health/', HealthCheckView.as_view(), name='health'),
 
     # Tareas recordatorio

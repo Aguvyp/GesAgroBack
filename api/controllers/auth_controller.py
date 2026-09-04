@@ -100,6 +100,19 @@ class TestView(APIView):
     def get(self, request):
         return Response({"status": "ok", "message": "Conexión exitosa"})
 
+
+class SessionView(APIView):
+    """Comprobación liviana de que el token guardado sigue vigente."""
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({
+            "status": "authenticated",
+            "user_id": request.user.id,
+            "role": request.user.rol,
+        })
+
 class HealthCheckView(APIView):
     permission_classes = [AllowAny]
     def get(self, request):

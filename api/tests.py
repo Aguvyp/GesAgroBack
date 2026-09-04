@@ -70,6 +70,7 @@ class MarketplaceTestCase(TestCase):
             'latitud': -33.12,
             'longitud': -61.01,
             'hectareas': 120,
+            'radio_cobertura_km': 35,
         }, format='json')
         self.assertEqual(response.status_code, 201, response.data)
 
@@ -77,6 +78,7 @@ class MarketplaceTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data['servicios']), 1)
         self.assertEqual(len(response.data['pedidos']), 1)
+        self.assertEqual(response.data['pedidos'][0]['radio_cobertura_km'], 35)
         self.assertNotIn('telefono_contacto', response.data['servicios'][0])
         self.assertEqual(float(response.data['servicios'][0]['latitud']), -32.947)
 
@@ -87,6 +89,17 @@ class MarketplaceTestCase(TestCase):
 
         response = other_client.delete(f'/api/marketplace/servicios/{service_id}/')
         self.assertEqual(response.status_code, 404)
+
+    def test_same_user_can_keep_sessions_on_multiple_devices(self):
+        first = create_auth_token(self.owner.id)
+        second = create_auth_token(self.owner.id)
+        self.assertNotEqual(first.access_token, second.access_token)
+
+        for token in (first.access_token, second.access_token):
+            client = APIClient()
+            client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+            response = client.get('/api/auth/session/')
+            self.assertEqual(response.status_code, 200)
 
 
 class UsuarioAdministrationTestCase(TestCase):

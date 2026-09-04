@@ -168,7 +168,8 @@ class PedidoServicioMarketplaceSerializer(MarketplacePublicMixin, serializers.Mo
         model = PedidoServicioMarketplace
         fields = (
             'id', 'propietario_id', 'nombre_publico', 'es_propio', 'titulo',
-            'categoria', 'descripcion', 'latitud', 'longitud', 'hectareas',
+            'categoria', 'descripcion', 'latitud', 'longitud',
+            'radio_cobertura_km', 'hectareas',
             'fecha_necesaria', 'estado', 'created_at', 'updated_at',
         )
         read_only_fields = ('id', 'propietario_id', 'nombre_publico', 'es_propio', 'created_at', 'updated_at')
